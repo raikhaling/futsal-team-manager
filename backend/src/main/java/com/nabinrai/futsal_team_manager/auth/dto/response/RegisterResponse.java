@@ -1,0 +1,14 @@
+package com.nabinrai.futsal_team_manager.auth.dto.response;
+
+import com.nabinrai.futsal_team_manager.common.enums.Role;
+
+public record RegisterResponse(
+        Long id,
+
+        String name,
+
+        String email,
+
+        Role role
+) {
+}
