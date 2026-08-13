@@ -4,14 +4,16 @@ import com.nabinrai.futsal_team_manager.common.enity.BaseEntity;
 import com.nabinrai.futsal_team_manager.common.enums.Position;
 import com.nabinrai.futsal_team_manager.common.enums.Role;
 import jakarta.persistence.*;
+import lombok.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table (name="players")
 public class Player extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false, length = 100)
     private String name;
 
@@ -25,7 +27,7 @@ public class Player extends BaseEntity {
     private String phone;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, name = "preferredPosition")
+    @Column(nullable = false)
     private Position preferredPosition;
 
     @Enumerated(EnumType.STRING)
@@ -35,6 +37,5 @@ public class Player extends BaseEntity {
     @Column(nullable = false)
     private Boolean enabled = true;
 
-    @Column(name = "jerseyNumber")
     private Integer jerseyNumber;
 }

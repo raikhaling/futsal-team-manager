@@ -3,9 +3,16 @@
 
 # IntelliJ
 .idea/
+*.iml
 
 # VS Code
 .vscode/
 
 # Logs
 *.log
+
+# Maven
+backend/target/
+
+# Java
+*.class
