@@ -1,13 +1,22 @@
-import { Link } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 function HomePage() {
-  return (
-    <main>
-      <h1>Futsal Team Manager</h1>
-      <p>Welcome to the application.</p>
+  const { user } = useAuth();
 
-      <Link to="/login">Go to Login</Link>
-    </main>
+  return (
+    <div>
+      <h1>Futsal Team Manager</h1>
+
+      {user ? (
+        <div>
+          <h2>Welcome, {user.name}</h2>
+          <p>Email: {user.email}</p>
+          <p>Role: {user.role}</p>
+        </div>
+      ) : (
+        <p>You are not logged in.</p>
+      )}
+    </div>
   );
 }
 
