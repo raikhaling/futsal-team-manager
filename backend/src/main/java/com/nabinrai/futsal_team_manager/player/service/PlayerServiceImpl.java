@@ -11,6 +11,7 @@ import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
 import com.nabinrai.futsal_team_manager.player.mapper.PlayerMapper;
 import com.nabinrai.futsal_team_manager.player.repository.PlayerRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +27,7 @@ public class PlayerServiceImpl implements PlayerService {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
         if (playerRepository.findByEmail(registerRequest.email()).isPresent()) {
             throw new EmailAlreadyExistsException(
