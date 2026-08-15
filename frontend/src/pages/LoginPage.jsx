@@ -1,6 +1,7 @@
 import { useState } from "react";
 import authApi from "../api/authApi";
 import { useAuth } from "../context/useAuth";
+import { useNavigate, Link } from "react-router-dom";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -8,6 +9,7 @@ function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { setUser } = useAuth();
+  const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -20,13 +22,9 @@ function LoginPage() {
         email,
         password,
       });
-      setUser(response.data);
 
-      console.log("Login successful:", response.data);
-
-      const currentPlayerResponse = await authApi.getCurrentPlayer();
-
-      console.log("Current player:", currentPlayerResponse.data);
+      setUser(response.data.user);
+      navigate("/");
     } catch (error) {
       setError(error.response?.data?.message || "Login failed");
     } finally {
@@ -68,6 +66,9 @@ function LoginPage() {
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+        <p>
+          Don't have an account? <Link to="/register">Sign Up</Link>
+        </p>
       </form>
     </section>
   );

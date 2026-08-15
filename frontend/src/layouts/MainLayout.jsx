@@ -1,12 +1,40 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth";
 
 function MainLayout() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  async function handleLogout() {
+    await logout();
+    navigate("/login");
+  }
+
   return (
     <div className="app">
       <header>
         <nav>
-          <Link to="/">Home</Link>
-          <Link to="/login">Login</Link>
+          {user ? (
+            <>
+              <Link to="/">Home</Link>
+              <Link to="/profile">My Profile</Link>
+
+              {user.role === "ADMIN" && (
+                <Link to="/admin/players">Manage Players</Link>
+              )}
+
+              <span>Welcome, {user.name}</span>
+
+              <button type="button" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">Login</Link>
+              <Link to="/register">Sign Up</Link>
+            </>
+          )}
         </nav>
       </header>
 
