@@ -9,6 +9,10 @@ import RegisterPage from "./pages/RegisterPage";
 import AdminPlayersPage from "./pages/AdminPlayersPage";
 import AdminRoute from "./components/AdminRoute";
 import AdminPlayerDetailsPage from "./pages/AdminPlayerDetailsPage";
+import AdminEditPlayerPage from "./pages/AdminEditPlayerPage";
+import UpcomingMatchesPage from "./pages/UpcomingMatchesPage";
+import MyAttendancePage from "./pages/MyAttendancePage";
+import AttendanceLeaderboardPage from "./pages/AttendanceLeaderboardPage";
 
 function App() {
   return (
@@ -71,6 +75,38 @@ function App() {
             <AdminRoute>
               <AdminPlayerDetailsPage />
             </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/players/:id/edit"
+          element={
+            <AdminRoute>
+              <AdminEditPlayerPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/matches"
+          element={
+            <ProtectedRoute>
+              <UpcomingMatchesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/attendance"
+          element={
+            <ProtectedRoute>
+              <MyAttendancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <ProtectedRoute>
+              <AttendanceLeaderboardPage />
+            </ProtectedRoute>
           }
         />
       </Route>

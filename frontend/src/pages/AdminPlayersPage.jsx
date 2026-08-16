@@ -11,7 +11,39 @@ function AdminPlayersPage() {
   const [error, setError] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [deletingId, setDeletingId] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function loadPlayers() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await adminPlayerApi.getAllPlayers(page, 10);
+
+        console.log("Players:", response.data);
+
+        const pageData = response.data;
+
+        if (pageData.totalPages > 0 && page >= pageData.totalPages) {
+          setPage(pageData.totalPages - 1);
+          return;
+        }
+
+        setPlayers(pageData.content);
+        setTotalPages(pageData.totalPages);
+        setTotalElements(pageData.totalElements);
+      } catch (error) {
+        setError(error.response?.data?.message || "Failed to load players.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadPlayers();
+  }, [page, refreshKey]);
 
   async function handleDelete(player) {
     const confirmed = window.confirm(
@@ -28,13 +60,7 @@ function AdminPlayersPage() {
     try {
       await adminPlayerApi.deletePlayer(player.id);
 
-      setPlayers((currentPlayers) =>
-        currentPlayers.filter(
-          (currentPlayer) => currentPlayer.id !== player.id,
-        ),
-      );
-
-      setTotalElements((currentTotal) => currentTotal - 1);
+      setRefreshKey((currentKey) => currentKey + 1);
     } catch (error) {
       setDeleteError(
         error.response?.data?.message || "Failed to delete player.",
@@ -43,28 +69,6 @@ function AdminPlayersPage() {
       setDeletingId(null);
     }
   }
-
-  useEffect(() => {
-    async function loadPlayers() {
-      try {
-        setLoading(true);
-        setError("");
-        const response = await adminPlayerApi.getAllPlayers(page, 10);
-
-        console.log("Players:", response.data);
-
-        setPlayers(response.data.content);
-        setTotalPages(response.data.totalPages);
-        setTotalElements(response.data.totalElements);
-      } catch (error) {
-        setError(error.response?.data?.message || "Failed to load players.");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadPlayers();
-  }, [page]);
 
   if (loading) {
     return <p>Loading players...</p>;
@@ -77,7 +81,9 @@ function AdminPlayersPage() {
   return (
     <section>
       <h1>Players</h1>
+
       <p>Total Players: {totalElements}</p>
+
       {deleteError && <p>{deleteError}</p>}
 
       {players.length === 0 ? (
@@ -114,6 +120,12 @@ function AdminPlayersPage() {
                   >
                     View
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/players/${player.id}/edit`)}
+                  >
+                    Edit
+                  </button>
 
                   <button
                     type="button"
@@ -128,10 +140,11 @@ function AdminPlayersPage() {
           </tbody>
         </table>
       )}
+
       <div>
         <button
           type="button"
-          onClick={() => setPage(page - 1)}
+          onClick={() => setPage((currentPage) => currentPage - 1)}
           disabled={page === 0}
         >
           Previous
@@ -143,7 +156,7 @@ function AdminPlayersPage() {
 
         <button
           type="button"
-          onClick={() => setPage(page + 1)}
+          onClick={() => setPage((currentPage) => currentPage + 1)}
           disabled={page >= totalPages - 1}
         >
           Next

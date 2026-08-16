@@ -17,7 +17,10 @@ function MainLayout() {
           {user ? (
             <>
               <Link to="/">Home</Link>
+              <Link to="/matches">Matches</Link>
               <Link to="/profile">My Profile</Link>
+              <Link to="/attendance">Attendance</Link>
+              <Link to="/leaderboard">Leaderboard</Link>
 
               {user.role === "ADMIN" && (
                 <Link to="/admin/players">Manage Players</Link>

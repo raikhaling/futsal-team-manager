@@ -15,6 +15,9 @@ const adminPlayerApi = {
   getPlayerById(id) {
     return axiosClient.get(`/api/admin/players/${id}`);
   },
+  updatePlayer(id, data) {
+    return axiosClient.put(`api/admin/players/${id}`, data);
+  },
 };
 
 export default adminPlayerApi;
