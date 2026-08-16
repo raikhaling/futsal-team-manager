@@ -1,7 +1,9 @@
 package com.nabinrai.futsal_team_manager.player.controller;
 
 import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
+import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.service.PlayerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,14 @@ public class AdminPlayerController {
     @GetMapping("/{id}")
     public UserResponse getPlayer(@PathVariable Long id) {
         return playerService.getPlayerById(id);
+    }
+
+    @PutMapping("/{id}")
+    public UserResponse updatePlayer(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminUpdatePlayerRequest request
+    ) {
+        return playerService.updatePlayer(id, request);
     }
 
     @DeleteMapping("/{id}")

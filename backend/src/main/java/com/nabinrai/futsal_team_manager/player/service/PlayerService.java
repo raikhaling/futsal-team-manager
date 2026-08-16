@@ -3,6 +3,7 @@ package com.nabinrai.futsal_team_manager.player.service;
 import com.nabinrai.futsal_team_manager.auth.dto.request.RegisterRequest;
 import com.nabinrai.futsal_team_manager.auth.dto.response.RegisterResponse;
 import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
+import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
 import jakarta.validation.Valid;
@@ -21,4 +22,6 @@ public interface PlayerService {
     UserResponse getPlayerById(Long id);
 
     void deletePlayer(Long id);
+
+    UserResponse updatePlayer(Long id, @Valid AdminUpdatePlayerRequest request);
 }

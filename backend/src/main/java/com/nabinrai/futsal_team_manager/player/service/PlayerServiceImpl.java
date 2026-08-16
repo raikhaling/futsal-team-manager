@@ -6,6 +6,7 @@ import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
 import com.nabinrai.futsal_team_manager.common.enums.Role;
 import com.nabinrai.futsal_team_manager.common.exception.EmailAlreadyExistsException;
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
@@ -115,5 +116,30 @@ public class PlayerServiceImpl implements PlayerService {
                 );
 
         playerRepository.delete(player);
+    }
+
+    @Override
+    public UserResponse updatePlayer(Long id, AdminUpdatePlayerRequest request) {
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Player not found with id: " + id
+                ));
+
+        if (!player.getEmail().equals(request.email())
+                && playerRepository.existsByEmail(request.email())) {
+
+            throw new IllegalArgumentException("Email is already in use");
+        }
+        player.setName(request.name());
+        player.setEmail(request.email());
+        player.setPhone(request.phone());
+        player.setPreferredPosition(request.preferredPosition());
+        player.setJerseyNumber(request.jerseyNumber());
+        player.setRole(request.role());
+
+
+        playerRepository.save(player);
+
+        return playerMapper.toUserResponse(player);
     }
 }
