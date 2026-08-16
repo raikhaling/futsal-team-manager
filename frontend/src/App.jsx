@@ -13,6 +13,10 @@ import AdminEditPlayerPage from "./pages/AdminEditPlayerPage";
 import UpcomingMatchesPage from "./pages/UpcomingMatchesPage";
 import MyAttendancePage from "./pages/MyAttendancePage";
 import AttendanceLeaderboardPage from "./pages/AttendanceLeaderboardPage";
+import AdminMatchesPage from "./pages/AdminMatchesPage";
+import AdminCreateMatchPage from "./pages/AdminCreateMatchPage";
+import AdminEditMatchPage from "./pages/AdminEditMatchPage";
+import AdminMatchDetailsPage from "./pages/AdminMatchDetailsPage";
 
 function App() {
   return (
@@ -106,6 +110,46 @@ function App() {
           element={
             <ProtectedRoute>
               <AttendanceLeaderboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matches"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminMatchesPage />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matches/create"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminCreateMatchPage />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matches/:id/edit"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminEditMatchPage />
+              </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/matches/:id"
+          element={
+            <ProtectedRoute>
+              <AdminRoute>
+                <AdminMatchDetailsPage />
+              </AdminRoute>
             </ProtectedRoute>
           }
         />

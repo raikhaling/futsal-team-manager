@@ -5,6 +5,8 @@ import java.time.LocalTime;
 
 public record MatchDetailsResponse(
         Long id,
+        String name,
+        String location,
         LocalDate matchDate,
         LocalTime startTime,
         LocalTime endTime,

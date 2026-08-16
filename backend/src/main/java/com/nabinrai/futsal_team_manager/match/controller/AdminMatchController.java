@@ -1,5 +1,6 @@
 package com.nabinrai.futsal_team_manager.match.controller;
 
+import com.nabinrai.futsal_team_manager.match.dto.request.AdminUpdateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.request.CreateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.response.MatchResponse;
 import com.nabinrai.futsal_team_manager.match.service.MatchService;
@@ -29,6 +30,15 @@ public class AdminMatchController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @PutMapping("/{id}")
+    public MatchResponse updateMatch(
+            @PathVariable Long id,
+            @Valid @RequestBody AdminUpdateMatchRequest request
+    ) {
+        return matchService.updateMatch(id, request);
+    }
+
 
     @GetMapping
     public List<MatchResponse> getAllMatches() {

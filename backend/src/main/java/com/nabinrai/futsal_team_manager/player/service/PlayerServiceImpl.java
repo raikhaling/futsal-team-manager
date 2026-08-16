@@ -9,6 +9,7 @@ import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundExcepti
 import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
+import com.nabinrai.futsal_team_manager.player.dto.response.PlayerOptionResponse;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
 import com.nabinrai.futsal_team_manager.player.mapper.PlayerMapper;
 import com.nabinrai.futsal_team_manager.player.repository.PlayerRepository;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -141,5 +144,16 @@ public class PlayerServiceImpl implements PlayerService {
         playerRepository.save(player);
 
         return playerMapper.toUserResponse(player);
+    }
+
+    @Override
+    public List<PlayerOptionResponse> getPlayerOptions() {
+        return playerRepository.findAll()
+                .stream()
+                .map(player -> new PlayerOptionResponse(
+                        player.getId(),
+                        player.getName()
+                ))
+                .toList();
     }
 }

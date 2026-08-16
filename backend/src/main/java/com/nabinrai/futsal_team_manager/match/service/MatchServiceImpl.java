@@ -1,6 +1,7 @@
 package com.nabinrai.futsal_team_manager.match.service;
 
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.match.dto.request.AdminUpdateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.request.CreateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.response.MatchDetailsResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.MatchResponse;
@@ -95,12 +96,35 @@ public class MatchServiceImpl implements MatchService {
 
         return new MatchDetailsResponse(
                 match.getId(),
+                match.getName(),
+                match.getLocation(),
                 match.getMatchDate(),
                 match.getStartTime(),
                 match.getEndTime(),
                 confirmedPlayers,
                 waitingPlayers
         );
+    }
+
+    @Override
+    public MatchResponse updateMatch(
+            Long id,
+            AdminUpdateMatchRequest request
+    ) {
+        Match match = matchRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Match not found with id: " + id
+                ));
+
+        match.setName(request.name());
+        match.setLocation(request.location());
+        match.setMatchDate(request.matchDate());
+        match.setStartTime(request.startTime());
+        match.setEndTime(request.endTime());
+
+        matchRepository.save(match);
+
+        return matchMapper.toResponse(match);
     }
 
 

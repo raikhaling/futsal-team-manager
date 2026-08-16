@@ -48,6 +48,26 @@ function HomePage() {
   if (error) {
     return <p>{error}</p>;
   }
+  function formatDate(date) {
+    return new Intl.DateTimeFormat("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }).format(new Date(`${date}T00:00:00`));
+  }
+
+  function formatTime(time) {
+    const [hours, minutes] = time.split(":");
+
+    const date = new Date();
+    date.setHours(Number(hours), Number(minutes));
+
+    return new Intl.DateTimeFormat("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    }).format(date);
+  }
 
   return (
     <section>
@@ -65,13 +85,17 @@ function HomePage() {
         <div>
           {upcomingMatches.slice(0, 2).map((match) => (
             <div key={match.id}>
-              <p>
-                <strong>{match.matchDate}</strong>
-              </p>
+              <h3>{match.name}</h3>
+
+              <p>📍 {match.location}</p>
+
+              <p>📅 {formatDate(match.matchDate)}</p>
 
               <p>
-                {match.startTime} - {match.endTime}
+                🕘 {formatTime(match.startTime)} - {formatTime(match.endTime)}
               </p>
+
+              <Link to={`/matches/${match.id}`}>View Details</Link>
 
               <hr />
             </div>

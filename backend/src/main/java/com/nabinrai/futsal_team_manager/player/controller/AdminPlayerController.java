@@ -2,6 +2,7 @@ package com.nabinrai.futsal_team_manager.player.controller;
 
 import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
 import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
+import com.nabinrai.futsal_team_manager.player.dto.response.PlayerOptionResponse;
 import com.nabinrai.futsal_team_manager.player.service.PlayerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin/players")
@@ -20,6 +23,11 @@ public class AdminPlayerController {
     @GetMapping
     public Page<UserResponse> getAllPlayers(Pageable pageable) {
         return playerService.getAllPlayers(pageable);
+    }
+
+    @GetMapping("/options")
+    public List<PlayerOptionResponse> getPlayerOptions() {
+        return playerService.getPlayerOptions();
     }
 
     @GetMapping("/{id}")

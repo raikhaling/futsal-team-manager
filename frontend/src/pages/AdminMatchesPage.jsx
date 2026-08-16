@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import matchApi from "../api/matchApi";
+import adminMatchApi from "../api/adminMatchApi";
+import { Link } from "react-router-dom";
 
-function UpcomingMatchesPage() {
+function AdminMatchesPage() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadMatches() {
@@ -15,13 +13,11 @@ function UpcomingMatchesPage() {
         setLoading(true);
         setError("");
 
-        const response = await matchApi.getUpcomingMatches();
+        const response = await adminMatchApi.getAllMatches();
 
         setMatches(response.data);
       } catch (error) {
-        setError(
-          error.response?.data?.message || "Failed to load upcoming matches.",
-        );
+        setError(error.response?.data?.message || "Failed to load matches.");
       } finally {
         setLoading(false);
       }
@@ -31,7 +27,7 @@ function UpcomingMatchesPage() {
   }, []);
 
   if (loading) {
-    return <p>Loading upcoming matches...</p>;
+    return <p>Loading matches...</p>;
   }
 
   if (error) {
@@ -61,9 +57,10 @@ function UpcomingMatchesPage() {
   return (
     <section>
       {" "}
-      <h1>Upcoming Matches</h1>
+      <h1>Manage Matches</h1>
+      <Link to="/admin/matches/create">Create Match</Link>
       {matches.length === 0 ? (
-        <p>No upcoming matches.</p>
+        <p>No matches found.</p>
       ) : (
         <table>
           <thead>
@@ -86,12 +83,11 @@ function UpcomingMatchesPage() {
                   {formatTime(match.startTime)} – {formatTime(match.endTime)}
                 </td>
                 <td>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/matches/${match.id}`)}
-                  >
-                    View Details
-                  </button>
+                  <Link to={`/admin/matches/${match.id}`}>Manage</Link>
+
+                  {" | "}
+
+                  <Link to={`/admin/matches/${match.id}/edit`}>Edit</Link>
                 </td>
               </tr>
             ))}
@@ -102,4 +98,4 @@ function UpcomingMatchesPage() {
   );
 }
 
-export default UpcomingMatchesPage;
+export default AdminMatchesPage;

@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-public record CreateMatchRequest(
+public record AdminUpdateMatchRequest(
         @NotBlank String name,
         @NotBlank String location,
         @NotNull LocalDate matchDate,

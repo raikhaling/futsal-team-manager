@@ -6,9 +6,12 @@ import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
 import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
+import com.nabinrai.futsal_team_manager.player.dto.response.PlayerOptionResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 
 public interface PlayerService {
     public RegisterResponse register(RegisterRequest registerRequest);
@@ -24,4 +27,6 @@ public interface PlayerService {
     void deletePlayer(Long id);
 
     UserResponse updatePlayer(Long id, @Valid AdminUpdatePlayerRequest request);
+
+    List<PlayerOptionResponse> getPlayerOptions();
 }

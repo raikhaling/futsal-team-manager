@@ -15,6 +15,10 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Match extends BaseEntity {
+    
+    private String name;
+
+    private String location;
 
     private LocalDate matchDate;
 

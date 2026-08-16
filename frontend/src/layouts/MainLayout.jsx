@@ -23,7 +23,10 @@ function MainLayout() {
               <Link to="/leaderboard">Leaderboard</Link>
 
               {user.role === "ADMIN" && (
-                <Link to="/admin/players">Manage Players</Link>
+                <>
+                  <Link to="/admin/players">Manage Players</Link>
+                  <Link to="/admin/matches">Manage Matches</Link>
+                </>
               )}
 
               <span>Welcome, {user.name}</span>
