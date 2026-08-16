@@ -9,6 +9,12 @@ const adminPlayerApi = {
       },
     });
   },
+  deletePlayer(id) {
+    return axiosClient.delete(`/api/admin/players/${id}`);
+  },
+  getPlayerById(id) {
+    return axiosClient.get(`/api/admin/players/${id}`);
+  },
 };
 
 export default adminPlayerApi;

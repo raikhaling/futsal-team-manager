@@ -8,6 +8,7 @@ import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminPlayersPage from "./pages/AdminPlayersPage";
 import AdminRoute from "./components/AdminRoute";
+import AdminPlayerDetailsPage from "./pages/AdminPlayerDetailsPage";
 
 function App() {
   return (
@@ -61,6 +62,14 @@ function App() {
           element={
             <AdminRoute>
               <AdminPlayersPage />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin/players/:id"
+          element={
+            <AdminRoute>
+              <AdminPlayerDetailsPage />
             </AdminRoute>
           }
         />

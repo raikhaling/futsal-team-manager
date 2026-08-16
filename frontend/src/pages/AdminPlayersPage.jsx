@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import adminPlayerApi from "../api/adminPlayerApi";
 
 function AdminPlayersPage() {
@@ -6,13 +7,48 @@ function AdminPlayersPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deleteError, setDeleteError] = useState("");
+  const [deletingId, setDeletingId] = useState(null);
+  const navigate = useNavigate();
+
+  async function handleDelete(player) {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${player.name}?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleteError("");
+    setDeletingId(player.id);
+
+    try {
+      await adminPlayerApi.deletePlayer(player.id);
+
+      setPlayers((currentPlayers) =>
+        currentPlayers.filter(
+          (currentPlayer) => currentPlayer.id !== player.id,
+        ),
+      );
+
+      setTotalElements((currentTotal) => currentTotal - 1);
+    } catch (error) {
+      setDeleteError(
+        error.response?.data?.message || "Failed to delete player.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  }
 
   useEffect(() => {
     async function loadPlayers() {
       try {
+        setLoading(true);
+        setError("");
         const response = await adminPlayerApi.getAllPlayers(page, 10);
 
         console.log("Players:", response.data);
@@ -41,6 +77,8 @@ function AdminPlayersPage() {
   return (
     <section>
       <h1>Players</h1>
+      <p>Total Players: {totalElements}</p>
+      {deleteError && <p>{deleteError}</p>}
 
       {players.length === 0 ? (
         <p>No players found.</p>
@@ -55,6 +93,7 @@ function AdminPlayersPage() {
               <th>Position</th>
               <th>Jersey Number</th>
               <th>Role</th>
+              <th>Actions</th>
             </tr>
           </thead>
 
@@ -68,11 +107,48 @@ function AdminPlayersPage() {
                 <td>{player.preferredPosition}</td>
                 <td>{player.jerseyNumber ?? "-"}</td>
                 <td>{player.role}</td>
+                <td>
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/admin/players/${player.id}`)}
+                  >
+                    View
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(player)}
+                    disabled={deletingId === player.id}
+                  >
+                    {deletingId === player.id ? "Deleting..." : "Delete"}
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
+      <div>
+        <button
+          type="button"
+          onClick={() => setPage(page - 1)}
+          disabled={page === 0}
+        >
+          Previous
+        </button>
+
+        <span>
+          Page {page + 1} of {totalPages}
+        </span>
+
+        <button
+          type="button"
+          onClick={() => setPage(page + 1)}
+          disabled={page >= totalPages - 1}
+        >
+          Next
+        </button>
+      </div>
     </section>
   );
 }
