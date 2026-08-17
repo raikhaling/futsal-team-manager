@@ -60,43 +60,71 @@ function UpcomingMatchesPage() {
 
   return (
     <section>
-      {" "}
       <h1>Upcoming Matches</h1>
+
       {matches.length === 0 ? (
         <p>No upcoming matches.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Match</th>
-              <th>Location</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Action</th>
-            </tr>
-          </thead>
+        <>
+          <h2>Next Match</h2>
 
-          <tbody>
-            {matches.map((match) => (
-              <tr key={match.id}>
-                <td>{match.name}</td>
-                <td>{match.location}</td>
-                <td>{formatDate(match.matchDate)}</td>
-                <td>
-                  {formatTime(match.startTime)} – {formatTime(match.endTime)}
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/matches/${match.id}`)}
-                  >
-                    View Details
-                  </button>
-                </td>
+          <div>
+            <h3>{matches[0].name}</h3>
+
+            <p>📍 {matches[0].location}</p>
+
+            <p>📅 {formatDate(matches[0].matchDate)}</p>
+
+            <p>
+              🕘 {formatTime(matches[0].startTime)} –{" "}
+              {formatTime(matches[0].endTime)}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate(`/matches/${matches[0].id}`)}
+            >
+              View Details
+            </button>
+          </div>
+
+          <hr />
+
+          <h2>All Upcoming Matches</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Match</th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {matches.map((match) => (
+                <tr key={match.id}>
+                  <td>{match.name}</td>
+                  <td>{match.location}</td>
+                  <td>{formatDate(match.matchDate)}</td>
+                  <td>
+                    {formatTime(match.startTime)} – {formatTime(match.endTime)}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/matches/${match.id}`)}
+                    >
+                      View Details
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
     </section>
   );

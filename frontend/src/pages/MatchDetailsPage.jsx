@@ -9,11 +9,62 @@ function MatchDetailsPage() {
   const [match, setMatch] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [myParticipation, setMyParticipation] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [participantsError, setParticipantsError] = useState("");
   const [participationError, setParticipationError] = useState("");
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState("");
+  const [leaving, setLeaving] = useState(false);
+  const [leaveError, setLeaveError] = useState("");
+
+  async function handleJoinMatch() {
+    try {
+      setJoining(true);
+      setJoinError("");
+
+      const response = await playerMatchApi.joinMatch(id);
+
+      setMyParticipation({
+        matchId: Number(id),
+        status: response.data.status,
+      });
+
+      await refreshParticipants();
+    } catch (error) {
+      setJoinError(error.response?.data?.message || "Failed to join match.");
+    } finally {
+      setJoining(false);
+    }
+  }
+  async function handleLeaveMatch() {
+    try {
+      setLeaving(true);
+      setLeaveError("");
+
+      await playerMatchApi.leaveMatch(id);
+
+      setMyParticipation({
+        matchId: Number(id),
+        status: "NOT_JOINED",
+      });
+
+      await refreshParticipants();
+    } catch (error) {
+      setLeaveError(error.response?.data?.message || "Failed to leave match.");
+    } finally {
+      setLeaving(false);
+    }
+  }
+  async function refreshParticipants() {
+    try {
+      const response = await playerMatchApi.getMatchParticipants(id);
+
+      setParticipants(response.data);
+    } catch {
+      setParticipantsError("Failed to refresh players joining this match.");
+    }
+  }
 
   useEffect(() => {
     async function loadMatchData() {
@@ -80,6 +131,9 @@ function MatchDetailsPage() {
   if (error) {
     return <p>{error}</p>;
   }
+  const confirmedParticipants = participants.filter(
+    (participant) => participant.status === "CONFIRMED",
+  );
 
   return (
     <section>
@@ -103,30 +157,63 @@ function MatchDetailsPage() {
 
       {participationError ? (
         <p>{participationError}</p>
-      ) : myParticipation?.status === "NOT_JOINED" ? (
-        <p>You have not joined this match.</p>
+      ) : myParticipation?.status === "NOT_JOINED" ||
+        myParticipation?.status === "CANCELLED" ? (
+        <>
+          {myParticipation?.status === "CANCELLED" ? (
+            <p>You cancelled your participation in this match.</p>
+          ) : (
+            <p>You have not joined this match.</p>
+          )}
+
+          {joinError && <p>{joinError}</p>}
+
+          <button type="button" onClick={handleJoinMatch} disabled={joining}>
+            {joining
+              ? "Joining..."
+              : myParticipation?.status === "CANCELLED"
+                ? "Join Match Again"
+                : "Join Match"}
+          </button>
+        </>
+      ) : myParticipation?.status === "WAITING_LIST" ? (
+        <>
+          <p>
+            <strong>Status:</strong> WAITING LIST
+          </p>
+
+          <p>The match is currently full. You are on the waiting list.</p>
+        </>
       ) : (
-        <p>
-          <strong>Status:</strong> {myParticipation?.status}
-        </p>
+        <>
+          <p>
+            <strong>Status:</strong> {myParticipation?.status}
+          </p>
+
+          {leaveError && <p>{leaveError}</p>}
+
+          {myParticipation?.status === "CONFIRMED" && (
+            <button type="button" onClick={handleLeaveMatch} disabled={leaving}>
+              {leaving ? "Leaving..." : "Leave Match"}
+            </button>
+          )}
+        </>
       )}
 
       <hr />
 
-      <h2>Players Joining ({participants.length})</h2>
+      <h2>Players Joining ({confirmedParticipants.length})</h2>
 
       {participantsError ? (
         <p>{participantsError}</p>
-      ) : participants.length === 0 ? (
+      ) : confirmedParticipants.length === 0 ? (
         <p>No players have joined yet.</p>
       ) : (
-        <ul>
-          {participants.map((participant) => (
-            <li key={participant.id}>
-              {participant.playerName} - {participant.status}
-            </li>
+        <ol>
+          {confirmedParticipants.map((participant) => (
+            <li key={participant.id}>{participant.playerName}</li>
           ))}
-        </ul>
+        </ol>
       )}
 
       <hr />

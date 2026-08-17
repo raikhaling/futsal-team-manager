@@ -80,28 +80,60 @@ function HomePage() {
       <h2>Upcoming Matches</h2>
 
       {upcomingMatches.length === 0 ? (
-        <p>No upcoming matches.</p>
+        <>
+          <h2>Upcoming Matches</h2>
+          <p>No upcoming matches.</p>
+        </>
       ) : (
-        <div>
-          {upcomingMatches.slice(0, 2).map((match) => (
-            <div key={match.id}>
-              <h3>{match.name}</h3>
+        <>
+          <h2>Next Match</h2>
 
-              <p>📍 {match.location}</p>
+          <div>
+            <h3>{upcomingMatches[0].name}</h3>
 
-              <p>📅 {formatDate(match.matchDate)}</p>
+            <p>📍 {upcomingMatches[0].location}</p>
 
-              <p>
-                🕘 {formatTime(match.startTime)} - {formatTime(match.endTime)}
-              </p>
+            <p>📅 {formatDate(upcomingMatches[0].matchDate)}</p>
 
-              <Link to={`/matches/${match.id}`}>View Details</Link>
+            <p>
+              🕘 {formatTime(upcomingMatches[0].startTime)} -{" "}
+              {formatTime(upcomingMatches[0].endTime)}
+            </p>
 
+            <Link to={`/matches/${upcomingMatches[0].id}`}>View Details</Link>
+          </div>
+
+          {upcomingMatches.length > 1 && (
+            <>
               <hr />
-            </div>
-          ))}
+
+              <h2>More Upcoming Matches</h2>
+
+              <div>
+                {upcomingMatches.slice(1, 2).map((match) => (
+                  <div key={match.id}>
+                    <h3>{match.name}</h3>
+
+                    <p>📍 {match.location}</p>
+
+                    <p>📅 {formatDate(match.matchDate)}</p>
+
+                    <p>
+                      🕘 {formatTime(match.startTime)} -{" "}
+                      {formatTime(match.endTime)}
+                    </p>
+
+                    <Link to={`/matches/${match.id}`}>View Details</Link>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <hr />
+
           <Link to="/matches">View All Matches</Link>
-        </div>
+        </>
       )}
 
       <h2>My Attendance</h2>
