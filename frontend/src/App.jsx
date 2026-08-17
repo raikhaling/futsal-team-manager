@@ -17,6 +17,7 @@ import AdminMatchesPage from "./pages/AdminMatchesPage";
 import AdminCreateMatchPage from "./pages/AdminCreateMatchPage";
 import AdminEditMatchPage from "./pages/AdminEditMatchPage";
 import AdminMatchDetailsPage from "./pages/AdminMatchDetailsPage";
+import MatchDetailsPage from "./pages/MatchDetailsPage";
 
 function App() {
   return (
@@ -150,6 +151,14 @@ function App() {
               <AdminRoute>
                 <AdminMatchDetailsPage />
               </AdminRoute>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/matches/:id"
+          element={
+            <ProtectedRoute>
+              <MatchDetailsPage />
             </ProtectedRoute>
           }
         />

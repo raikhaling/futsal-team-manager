@@ -16,6 +16,8 @@ function AdminMatchDetailsPage() {
   const [selectedPlayerId, setSelectedPlayerId] = useState("");
   const [addingPlayer, setAddingPlayer] = useState(false);
   const [addPlayerError, setAddPlayerError] = useState("");
+  const [updatingParticipationId, setUpdatingParticipationId] = useState(null);
+  const [attendanceError, setAttendanceError] = useState("");
 
   useEffect(() => {
     async function loadPlayerOptions() {
@@ -71,6 +73,40 @@ function AdminMatchDetailsPage() {
 
     loadMatch();
   }, [id]);
+  async function handleParticipationStatus(participationId, status) {
+    try {
+      setUpdatingParticipationId(participationId);
+      setAttendanceError("");
+
+      let response;
+
+      if (status === "ATTENDED") {
+        response = await adminMatchApi.markAttendance(participationId);
+      } else if (status === "NO_SHOW") {
+        response = await adminMatchApi.markNoShow(participationId);
+      }
+
+      const updatedParticipation = response.data;
+
+      setParticipants((currentParticipants) =>
+        currentParticipants.map((participant) =>
+          participant.id === updatedParticipation.id
+            ? updatedParticipation
+            : participant,
+        ),
+      );
+    } catch (error) {
+      console.log("Attendance error:", error.response?.data);
+
+      setAttendanceError(
+        error.response?.data?.message ||
+          error.response?.data?.detail ||
+          "Failed to update participation status.",
+      );
+    } finally {
+      setUpdatingParticipationId(null);
+    }
+  }
 
   async function handleAddPlayer(event) {
     event.preventDefault();
@@ -106,6 +142,10 @@ function AdminMatchDetailsPage() {
   if (error) {
     return <p>{error}</p>;
   }
+  const availablePlayers = playerOptions.filter(
+    (player) =>
+      !participants.some((participant) => participant.playerId === player.id),
+  );
 
   return (
     <section>
@@ -155,19 +195,29 @@ function AdminMatchDetailsPage() {
         >
           <option value="">Select a player</option>
 
-          {playerOptions.map((player) => (
+          {availablePlayers.map((player) => (
             <option key={player.id} value={player.id}>
               {player.name}
             </option>
           ))}
         </select>
 
-        <button type="submit" disabled={!selectedPlayerId || addingPlayer}>
+        <button
+          type="submit"
+          disabled={
+            !selectedPlayerId || addingPlayer || availablePlayers.length === 0
+          }
+        >
           {addingPlayer ? "Adding..." : "Add Player"}
         </button>
       </form>
+      {availablePlayers.length === 0 && (
+        <p>All players have already been added to this match.</p>
+      )}
 
       <h2>Participants</h2>
+
+      {attendanceError && <p>{attendanceError}</p>}
 
       {participantsLoading ? (
         <p>Loading participants...</p>
@@ -181,16 +231,57 @@ function AdminMatchDetailsPage() {
             <tr>
               <th>Player</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
-            {participants.map((participant) => (
-              <tr key={participant.id}>
-                <td>{participant.playerName}</td>
-                <td>{participant.status}</td>
-              </tr>
-            ))}
+            {participants.map((participant) => {
+              const isUpdating = updatingParticipationId === participant.id;
+
+              return (
+                <tr key={participant.id}>
+                  <td>{participant.playerName}</td>
+
+                  <td>{participant.status}</td>
+
+                  <td>
+                    {participant.status === "CONFIRMED" ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleParticipationStatus(
+                              participant.id,
+                              "ATTENDED",
+                            )
+                          }
+                          disabled={isUpdating}
+                        >
+                          {isUpdating ? "Updating..." : "Attended"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleParticipationStatus(participant.id, "NO_SHOW")
+                          }
+                          disabled={isUpdating}
+                        >
+                          No Show
+                        </button>
+                      </>
+                    ) : participant.status === "ATTENDED" ? (
+                      <span>Attendance marked</span>
+                    ) : participant.status === "NO_SHOW" ? (
+                      <span>No show marked</span>
+                    ) : (
+                      <span>No action available</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}

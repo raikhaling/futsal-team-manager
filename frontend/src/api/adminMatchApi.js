@@ -22,6 +22,17 @@ const adminMatchApi = {
       playerId,
     });
   },
+  markAttendance(participationId) {
+    return axiosClient.patch(
+      `/api/admin/matches/participants/${participationId}/attendance`,
+    );
+  },
+
+  markNoShow(participationId) {
+    return axiosClient.patch(
+      `/api/admin/matches/participants/${participationId}/no-show`,
+    );
+  },
 };
 
 export default adminMatchApi;
