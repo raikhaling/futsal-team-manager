@@ -51,4 +51,6 @@ public interface MatchParticipationRepository
             Long matchId,
             ParticipationStatus status
     );
+
+    void deleteByPlayerId(Long id);
 }

@@ -6,6 +6,7 @@ import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
 import com.nabinrai.futsal_team_manager.common.enums.Role;
 import com.nabinrai.futsal_team_manager.common.exception.EmailAlreadyExistsException;
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepository;
 import com.nabinrai.futsal_team_manager.player.dto.request.AdminUpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
@@ -16,7 +17,9 @@ import com.nabinrai.futsal_team_manager.player.repository.PlayerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlayerServiceImpl implements PlayerService {
     private final PlayerRepository playerRepository;
+    private final MatchParticipationRepository matchParticipationRepository;
     private final PlayerMapper playerMapper;
     private final PasswordEncoder passwordEncoder;
 
@@ -93,7 +97,14 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Page<UserResponse> getAllPlayers(Pageable pageable) {
-        return playerRepository.findAll(pageable)
+
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "createdAt")
+        );
+
+        return playerRepository.findAll(sortedPageable)
                 .map(playerMapper::toUserResponse);
     }
 
@@ -110,6 +121,7 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
+    @Transactional
     public void deletePlayer(Long id) {
         Player player = playerRepository.findById(id)
                 .orElseThrow(() ->
@@ -117,8 +129,9 @@ public class PlayerServiceImpl implements PlayerService {
                                 "Player not found with id: " + id
                         )
                 );
-
+        matchParticipationRepository.deleteByPlayerId(id);
         playerRepository.delete(player);
+
     }
 
     @Override
@@ -140,15 +153,15 @@ public class PlayerServiceImpl implements PlayerService {
         player.setJerseyNumber(request.jerseyNumber());
         player.setRole(request.role());
 
-
         playerRepository.save(player);
-
         return playerMapper.toUserResponse(player);
     }
 
     @Override
     public List<PlayerOptionResponse> getPlayerOptions() {
-        return playerRepository.findAll()
+        return playerRepository.findAll(
+                        Sort.by(Sort.Direction.ASC, "name")
+                )
                 .stream()
                 .map(player -> new PlayerOptionResponse(
                         player.getId(),

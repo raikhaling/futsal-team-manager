@@ -54,7 +54,8 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<MatchResponse> getAllMatches() {
 
-        return matchRepository.findAll()
+        return matchRepository
+                .findAllByOrderByMatchDateAscStartTimeAsc()
                 .stream()
                 .map(matchMapper::toResponse)
                 .toList();
@@ -68,6 +69,7 @@ public class MatchServiceImpl implements MatchService {
         return matchRepository
                 .findByMatchDateGreaterThanEqualOrderByMatchDateAscStartTimeAsc(today)
                 .stream()
+                .filter(match -> !match.hasEnded())
                 .map(matchMapper::toUpcomingMatchResponse)
                 .toList();
     }

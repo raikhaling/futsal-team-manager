@@ -26,4 +26,5 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             LocalDate date
     );
 
+    List<Match> findAllByOrderByMatchDateAscStartTimeAsc();
 }
