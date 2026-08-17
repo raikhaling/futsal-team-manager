@@ -61,4 +61,11 @@ public class PlayerMatchController {
         return participationService.getMyParticipation(matchId, currentPlayerService.getCurrentPlayerId());
     }
 
+    @GetMapping("/{matchId}/participants")
+    public List<ParticipationResponse> getParticipants(
+            @PathVariable Long matchId
+    ) {
+        return participationService.getMatchParticipants(matchId);
+    }
+
 }
