@@ -33,43 +33,76 @@ function LoginPage() {
   }
 
   return (
-    <section>
-      <h1>Login</h1>
+    <section className="mx-auto max-w-md py-8 sm:py-12">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Login
+        </h1>
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Email
+            </label>
 
-        <div>
-          <label htmlFor="password">Password</label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Password
+            </label>
 
-        {error && <p>{error}</p>}
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-        <p>
-          Don't have an account? <Link to="/register">Sign Up</Link>
-        </p>
-      </form>
+          <div className="pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </div>
+
+          <p className="pt-2 text-center text-sm text-slate-600">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="font-medium text-blue-600 hover:text-blue-700"
+            >
+              Sign Up
+            </Link>
+          </p>
+        </form>
+      </div>
     </section>
   );
 }

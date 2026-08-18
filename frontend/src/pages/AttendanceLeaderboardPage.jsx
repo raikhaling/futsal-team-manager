@@ -29,46 +29,79 @@ function AttendanceLeaderboardPage() {
   }, []);
 
   if (loading) {
-    return <p>Loading leaderboard...</p>;
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <p className="text-sm font-medium text-slate-500">
+          Loading leaderboard...
+        </p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <section>
-      <h1>Attendance Leaderboard</h1>
+    <section className="space-y-6">
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+        Attendance Leaderboard
+      </h1>
 
-      {leaderboard.length === 0 ? (
-        <p>No leaderboard data available.</p>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Player</th>
-              <th>Matches</th>
-              <th>Attended</th>
-              <th>No Show</th>
-              <th>Attendance Rate</th>
-            </tr>
-          </thead>
+      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+        {leaderboard.length === 0 ? (
+          <div className="p-6 text-center text-sm text-slate-500">
+            No leaderboard data available.
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th className="px-6 py-3 font-semibold">Rank</th>
+                  <th className="px-6 py-3 font-semibold">Player</th>
+                  <th className="px-6 py-3 font-semibold">Matches</th>
+                  <th className="px-6 py-3 font-semibold">Attended</th>
+                  <th className="px-6 py-3 font-semibold">No Show</th>
+                  <th className="px-6 py-3 font-semibold">Attendance Rate</th>
+                </tr>
+              </thead>
 
-          <tbody>
-            {leaderboard.map((player, index) => (
-              <tr key={player.playerName}>
-                <td>{index + 1}</td>
-                <td>{player.playerName}</td>
-                <td>{player.matches}</td>
-                <td>{player.attended}</td>
-                <td>{player.noShow}</td>
-                <td>{player.attendancePercentage.toFixed(2)}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+              <tbody className="divide-y divide-slate-200">
+                {leaderboard.map((player, index) => (
+                  <tr
+                    key={player.playerName}
+                    className="transition hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-4 font-semibold text-slate-700">
+                      #{index + 1}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-slate-900">
+                      {player.playerName}
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      {player.matches}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-emerald-600">
+                      {player.attended}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-rose-600">
+                      {player.noShow}
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-blue-600">
+                      {player.attendancePercentage.toFixed(2)}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

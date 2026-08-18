@@ -79,110 +79,169 @@ function AdminEditPlayerPage() {
   }
 
   if (loading) {
-    return <p>Loading player...</p>;
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <p className="text-sm font-medium text-slate-500">Loading player...</p>
+      </div>
+    );
   }
 
   if (error && !formData.name) {
-    return <p>{error}</p>;
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {error}
+      </div>
+    );
   }
 
   return (
-    <section>
-      <h1>Edit Player</h1>
+    <section className="mx-auto max-w-2xl py-4 sm:py-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Edit Player
+        </h1>
 
-      {error && <p>{error}</p>}
+        {error && (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="phone">Phone</label>
-          <input
-            id="phone"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-          />
-        </div>
+          <div>
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Phone
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="preferredPosition">Preferred Position</label>
+          <div>
+            <label
+              htmlFor="preferredPosition"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Preferred Position
+            </label>
 
-          <select
-            id="preferredPosition"
-            name="preferredPosition"
-            value={formData.preferredPosition}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select position</option>
-            <option value="GOALKEEPER">Goalkeeper</option>
-            <option value="DEFENDER">Defender</option>
-            <option value="MIDFIELDER">Midfielder</option>
-            <option value="FORWARD">Forward</option>
-          </select>
-        </div>
+            <select
+              id="preferredPosition"
+              name="preferredPosition"
+              value={formData.preferredPosition}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Select position</option>
+              <option value="GOALKEEPER">Goalkeeper</option>
+              <option value="DEFENDER">Defender</option>
+              <option value="MIDFIELDER">Midfielder</option>
+              <option value="FORWARD">Forward</option>
+            </select>
+          </div>
 
-        <div>
-          <label htmlFor="jerseyNumber">Jersey Number</label>
-          <input
-            id="jerseyNumber"
-            name="jerseyNumber"
-            type="number"
-            value={formData.jerseyNumber}
-            onChange={handleChange}
-          />
-        </div>
+          <div>
+            <label
+              htmlFor="jerseyNumber"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Jersey Number
+            </label>
+            <input
+              id="jerseyNumber"
+              name="jerseyNumber"
+              type="number"
+              value={formData.jerseyNumber}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
 
-        <div>
-          <label htmlFor="role">Role</label>
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-slate-700"
+            >
+              Role
+            </label>
 
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select role</option>
-            <option value="PLAYER">Player</option>
-            <option value="ADMIN">Admin</option>
-          </select>
-        </div>
+            <select
+              id="role"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">Select role</option>
+              <option value="PLAYER">Player</option>
+              <option value="ADMIN">Admin</option>
+            </select>
+          </div>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? "Updating..." : "Update Player"}
-        </button>
+          <div className="flex items-center gap-3 pt-4">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {submitting ? "Updating..." : "Update Player"}
+            </button>
 
-        <button
-          type="button"
-          onClick={() => navigate(`/admin/players/${id}`)}
-          disabled={submitting}
-        >
-          Cancel
-        </button>
-      </form>
+            <button
+              type="button"
+              onClick={() => navigate(`/admin/players/${id}`)}
+              disabled={submitting}
+              className="rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
     </section>
   );
 }

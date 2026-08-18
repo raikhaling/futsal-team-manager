@@ -30,13 +30,6 @@ function UpcomingMatchesPage() {
     loadMatches();
   }, []);
 
-  if (loading) {
-    return <p>Loading upcoming matches...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
   function formatDate(date) {
     return new Intl.DateTimeFormat("en-US", {
       month: "short",
@@ -58,72 +51,128 @@ function UpcomingMatchesPage() {
     }).format(date);
   }
 
+  if (loading) {
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <p className="text-sm text-slate-500">Loading upcoming matches...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {error}
+      </div>
+    );
+  }
+
+  const nextMatch = matches[0];
+
   return (
-    <section>
-      <h1>Upcoming Matches</h1>
+    <section className="space-y-8">
+      <div>
+        <p className="text-sm font-medium text-blue-600">Matches</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          Upcoming Matches
+        </h1>
+        <p className="mt-2 text-sm text-slate-500 sm:text-base">
+          View upcoming futsal matches and check their details.
+        </p>
+      </div>
 
       {matches.length === 0 ? (
-        <p>No upcoming matches.</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center sm:p-8">
+          <p className="text-sm text-slate-500">No upcoming matches.</p>
+        </div>
       ) : (
         <>
-          <h2>Next Match</h2>
+          <section className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+              Next Match
+            </h2>
 
-          <div>
-            <h3>{matches[0].name}</h3>
+            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900">
+                    {nextMatch.name}
+                  </h3>
 
-            <p>📍 {matches[0].location}</p>
+                  <div className="mt-4 space-y-2 text-sm text-slate-600">
+                    <p>📍 {nextMatch.location}</p>
+                    <p>📅 {formatDate(nextMatch.matchDate)}</p>
+                    <p>
+                      🕘 {formatTime(nextMatch.startTime)} –{" "}
+                      {formatTime(nextMatch.endTime)}
+                    </p>
+                  </div>
+                </div>
 
-            <p>📅 {formatDate(matches[0].matchDate)}</p>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/matches/${nextMatch.id}`)}
+                  className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 sm:w-auto"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          </section>
 
-            <p>
-              🕘 {formatTime(matches[0].startTime)} –{" "}
-              {formatTime(matches[0].endTime)}
-            </p>
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                All Upcoming Matches
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Matches are ordered by the nearest scheduled date and time.
+              </p>
+            </div>
 
-            <button
-              type="button"
-              onClick={() => navigate(`/matches/${matches[0].id}`)}
-            >
-              View Details
-            </button>
-          </div>
+            <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+              <table className="w-full min-w-175 text-left text-sm">
+                <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold">Match</th>
+                    <th className="px-4 py-3 font-semibold">Location</th>
+                    <th className="px-4 py-3 font-semibold">Date</th>
+                    <th className="px-4 py-3 font-semibold">Time</th>
+                    <th className="px-4 py-3 font-semibold">Action</th>
+                  </tr>
+                </thead>
 
-          <hr />
-
-          <h2>All Upcoming Matches</h2>
-
-          <table>
-            <thead>
-              <tr>
-                <th>Match</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {matches.map((match) => (
-                <tr key={match.id}>
-                  <td>{match.name}</td>
-                  <td>{match.location}</td>
-                  <td>{formatDate(match.matchDate)}</td>
-                  <td>
-                    {formatTime(match.startTime)} – {formatTime(match.endTime)}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/matches/${match.id}`)}
-                    >
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                <tbody className="divide-y divide-slate-200">
+                  {matches.map((match) => (
+                    <tr key={match.id} className="transition hover:bg-slate-50">
+                      <td className="px-4 py-4 font-medium text-slate-900">
+                        {match.name}
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">
+                        {match.location}
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">
+                        {formatDate(match.matchDate)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                        {formatTime(match.startTime)} –{" "}
+                        {formatTime(match.endTime)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/matches/${match.id}`)}
+                          className="whitespace-nowrap rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                        >
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
         </>
       )}
     </section>

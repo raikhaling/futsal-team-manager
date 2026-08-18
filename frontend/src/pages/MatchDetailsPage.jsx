@@ -37,6 +37,7 @@ function MatchDetailsPage() {
       setJoining(false);
     }
   }
+
   async function handleLeaveMatch() {
     try {
       setLeaving(true);
@@ -56,6 +57,7 @@ function MatchDetailsPage() {
       setLeaving(false);
     }
   }
+
   async function refreshParticipants() {
     try {
       const response = await playerMatchApi.getMatchParticipants(id);
@@ -103,7 +105,6 @@ function MatchDetailsPage() {
         setMyParticipation(response.data);
       } catch (error) {
         console.error("Failed to load participation:", error);
-
         setParticipationError("Failed to load your participation status.");
         setMyParticipation(null);
       }
@@ -125,100 +126,196 @@ function MatchDetailsPage() {
   }, [id]);
 
   if (loading) {
-    return <p>Loading match details...</p>;
+    return (
+      <div className="flex min-h-64 items-center justify-center">
+        <p className="text-sm text-slate-500">Loading match details...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+        {error}
+      </div>
+    );
   }
+
   const confirmedParticipants = participants.filter(
     (participant) => participant.status === "CONFIRMED",
   );
 
+  const status = myParticipation?.status;
+
+  const statusStyles = {
+    CONFIRMED: "border-green-200 bg-green-50 text-green-700",
+    WAITING_LIST: "border-yellow-200 bg-yellow-50 text-yellow-700",
+    CANCELLED: "border-red-200 bg-red-50 text-red-700",
+    ATTENDED: "border-blue-200 bg-blue-50 text-blue-700",
+    NO_SHOW: "border-slate-300 bg-slate-100 text-slate-700",
+  };
+
   return (
-    <section>
-      <h1>{match.name}</h1>
+    <section className="space-y-8">
+      <div>
+        <Link
+          to="/matches"
+          className="text-sm font-medium text-blue-600 hover:text-blue-700"
+        >
+          ← Back to Upcoming Matches
+        </Link>
 
-      <p>
-        <strong>Location:</strong> {match.location}
-      </p>
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+          {match.name}
+        </h1>
 
-      <p>
-        <strong>Date:</strong> {match.matchDate}
-      </p>
+        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Location
+            </p>
+            <p className="mt-2 font-medium text-slate-900">{match.location}</p>
+          </div>
 
-      <p>
-        <strong>Time:</strong> {match.startTime} - {match.endTime}
-      </p>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Date
+            </p>
+            <p className="mt-2 font-medium text-slate-900">{match.matchDate}</p>
+          </div>
 
-      <hr />
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Time
+            </p>
+            <p className="mt-2 font-medium text-slate-900">
+              {match.startTime} - {match.endTime}
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <h2>My Participation</h2>
+      <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+          My Participation
+        </h2>
 
-      {participationError ? (
-        <p>{participationError}</p>
-      ) : myParticipation?.status === "NOT_JOINED" ||
-        myParticipation?.status === "CANCELLED" ? (
-        <>
-          {myParticipation?.status === "CANCELLED" ? (
-            <p>You cancelled your participation in this match.</p>
-          ) : (
-            <p>You have not joined this match.</p>
-          )}
+        {participationError ? (
+          <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {participationError}
+          </div>
+        ) : status === "NOT_JOINED" || status === "CANCELLED" ? (
+          <div className="mt-4">
+            <p className="text-sm text-slate-600">
+              {status === "CANCELLED"
+                ? "You cancelled your participation in this match."
+                : "You have not joined this match."}
+            </p>
 
-          {joinError && <p>{joinError}</p>}
+            {joinError && (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {joinError}
+              </div>
+            )}
 
-          <button type="button" onClick={handleJoinMatch} disabled={joining}>
-            {joining
-              ? "Joining..."
-              : myParticipation?.status === "CANCELLED"
-                ? "Join Match Again"
-                : "Join Match"}
-          </button>
-        </>
-      ) : myParticipation?.status === "WAITING_LIST" ? (
-        <>
-          <p>
-            <strong>Status:</strong> WAITING LIST
-          </p>
-
-          <p>The match is currently full. You are on the waiting list.</p>
-        </>
-      ) : (
-        <>
-          <p>
-            <strong>Status:</strong> {myParticipation?.status}
-          </p>
-
-          {leaveError && <p>{leaveError}</p>}
-
-          {myParticipation?.status === "CONFIRMED" && (
-            <button type="button" onClick={handleLeaveMatch} disabled={leaving}>
-              {leaving ? "Leaving..." : "Leave Match"}
+            <button
+              type="button"
+              onClick={handleJoinMatch}
+              disabled={joining}
+              className="mt-5 w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {joining
+                ? "Joining..."
+                : status === "CANCELLED"
+                  ? "Join Match Again"
+                  : "Join Match"}
             </button>
-          )}
-        </>
-      )}
+          </div>
+        ) : status === "WAITING_LIST" ? (
+          <div className="mt-4">
+            <span className="inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide border-yellow-200 bg-yellow-50 text-yellow-700">
+              Waiting List
+            </span>
 
-      <hr />
+            <p className="mt-4 text-sm text-slate-600">
+              The match is currently full. You are on the waiting list.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4">
+            {status && (
+              <span
+                className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+                  statusStyles[status] ||
+                  "border-slate-200 bg-slate-50 text-slate-700"
+                }`}
+              >
+                {status.replace("_", " ")}
+              </span>
+            )}
 
-      <h2>Players Joining ({confirmedParticipants.length})</h2>
+            {leaveError && (
+              <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {leaveError}
+              </div>
+            )}
 
-      {participantsError ? (
-        <p>{participantsError}</p>
-      ) : confirmedParticipants.length === 0 ? (
-        <p>No players have joined yet.</p>
-      ) : (
-        <ol>
-          {confirmedParticipants.map((participant) => (
-            <li key={participant.id}>{participant.playerName}</li>
-          ))}
-        </ol>
-      )}
+            {status === "CONFIRMED" && (
+              <button
+                type="button"
+                onClick={handleLeaveMatch}
+                disabled={leaving}
+                className="mt-5 w-full rounded-lg border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {leaving ? "Leaving..." : "Leave Match"}
+              </button>
+            )}
+          </div>
+        )}
+      </section>
 
-      <hr />
+      <section>
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+            Players Joining
+          </h2>
 
-      <Link to="/matches">Back to Upcoming Matches</Link>
+          <span className="rounded-full bg-slate-200 px-3 py-1 text-sm font-medium text-slate-700">
+            {confirmedParticipants.length} Confirmed
+          </span>
+        </div>
+
+        {participantsError ? (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {participantsError}
+          </div>
+        ) : confirmedParticipants.length === 0 ? (
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white p-6 text-center">
+            <p className="text-sm text-slate-500">
+              No players have joined yet.
+            </p>
+          </div>
+        ) : (
+          <div className="mt-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+            <ol className="divide-y divide-slate-200">
+              {confirmedParticipants.map((participant, index) => (
+                <li
+                  key={participant.id}
+                  className="flex items-center gap-4 px-4 py-4 sm:px-6"
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-700">
+                    {index + 1}
+                  </span>
+
+                  <span className="font-medium text-slate-800">
+                    {participant.playerName}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
+      </section>
     </section>
   );
 }
