@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
+import FutsalLogo from "../components/common/FutsalLogo";
+import Footer from "../components/common/ Footer";
 
 function MainLayout() {
   const { user, logout } = useAuth();
@@ -27,7 +29,7 @@ function MainLayout() {
             onClick={closeMenu}
             className="flex items-center gap-2 text-lg font-bold text-slate-900"
           >
-            <span className="text-xl">⚽</span>
+            <FutsalLogo size={36} />
             <span>Futsal Manager</span>
           </Link>
 
@@ -241,6 +243,7 @@ function MainLayout() {
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
