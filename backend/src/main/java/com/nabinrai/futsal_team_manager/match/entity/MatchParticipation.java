@@ -12,12 +12,20 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(
+        name = "match_participation",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_match_player",
+                columnNames = {"match_id", "player_id"}
+        )
+)
 public class MatchParticipation extends BaseEntity {
-
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "match_id", nullable = false)
     private Match match;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "player_id", nullable = false)
     private Player player;
 
     @Enumerated(EnumType.STRING)

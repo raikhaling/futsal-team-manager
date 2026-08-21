@@ -129,6 +129,9 @@ public class PlayerServiceImpl implements PlayerService {
                                 "Player not found with id: " + id
                         )
                 );
+        if (Role.ADMIN.equals(player.getRole())) {
+            throw new IllegalArgumentException("Cannot delete an Admin player");
+        }
         matchParticipationRepository.deleteByPlayerId(id);
         playerRepository.delete(player);
 

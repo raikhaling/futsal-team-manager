@@ -23,8 +23,6 @@ function AdminPlayersPage() {
 
         const response = await adminPlayerApi.getAllPlayers(page, 10);
 
-        console.log("Players:", response.data);
-
         const pageData = response.data;
 
         if (pageData.totalPages > 0 && page >= pageData.totalPages) {

@@ -104,7 +104,6 @@ function MatchDetailsPage() {
 
         setMyParticipation(response.data);
       } catch (error) {
-        console.error("Failed to load participation:", error);
         setParticipationError("Failed to load your participation status.");
         setMyParticipation(null);
       }

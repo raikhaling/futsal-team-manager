@@ -2,9 +2,10 @@ package com.nabinrai.futsal_team_manager.leaderboard.service;
 
 import com.nabinrai.futsal_team_manager.leaderboard.dto.response.AttendanceLeaderboardProjection;
 import com.nabinrai.futsal_team_manager.leaderboard.dto.response.AttendanceLeaderboardResponse;
-import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepository;
+import com.nabinrai.futsal_team_manager.leaderboard.repository.AttendanceLeaderboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,13 +15,14 @@ import java.util.List;
 public class AttendanceLeaderboardServiceImpl
         implements AttendanceLeaderboardService {
 
-    private final MatchParticipationRepository participationRepository;
+    private final AttendanceLeaderboardRepository leaderboardRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<AttendanceLeaderboardResponse> getLeaderboard(String sort) {
 
         List<AttendanceLeaderboardProjection> projections =
-                participationRepository.findAttendanceLeaderboard();
+                leaderboardRepository.findAttendanceLeaderboard();
 
         return projections.stream()
                 .map(player -> {

@@ -14,8 +14,6 @@ function AdminPlayerDetailsPage() {
       try {
         const response = await adminPlayerApi.getPlayerById(id);
 
-        console.log("Player:", response.data);
-
         setPlayer(response.data);
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load player.");

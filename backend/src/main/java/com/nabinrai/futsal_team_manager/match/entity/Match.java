@@ -2,6 +2,7 @@ package com.nabinrai.futsal_team_manager.match.entity;
 
 import com.nabinrai.futsal_team_manager.common.enity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -14,8 +15,9 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "matches")
 public class Match extends BaseEntity {
-    
+
     private String name;
 
     private String location;

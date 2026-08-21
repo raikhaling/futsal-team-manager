@@ -3,15 +3,16 @@ spring:
     name: futsal-team-manager
 
   jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+    # Keep open-in-view OFF to avoid long-lived DB connections / lazy-loading
+    # outside of transactional service methods.
+    open-in-view: false
 
   data:
     web:
       pageable:
         default-page-size: 20
         max-page-size: 100
+
+app:
+  match:
+    max-confirmed-players: 14

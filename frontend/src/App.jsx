@@ -61,14 +61,6 @@ function App() {
         <Route
           path="/admin/players"
           element={
-            <ProtectedRoute>
-              <AdminPlayersPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/players"
-          element={
             <AdminRoute>
               <AdminPlayersPage />
             </AdminRoute>

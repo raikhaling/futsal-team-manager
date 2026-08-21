@@ -4,6 +4,14 @@ spring:
     username: futsal_user
     password: futsal_user
 
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
 app:
   cors:
     allowed-origins: http://localhost:5173

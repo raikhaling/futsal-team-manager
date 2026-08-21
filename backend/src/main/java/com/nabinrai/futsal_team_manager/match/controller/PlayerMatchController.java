@@ -65,7 +65,10 @@ public class PlayerMatchController {
     public List<ParticipationResponse> getParticipants(
             @PathVariable Long matchId
     ) {
-        return participationService.getMatchParticipants(matchId);
+        return participationService.getMatchParticipantsForPlayer(
+                matchId,
+                currentPlayerService.getCurrentPlayerId()
+        );
     }
 
 }

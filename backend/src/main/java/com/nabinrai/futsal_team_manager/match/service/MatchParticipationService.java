@@ -20,6 +20,11 @@ public interface MatchParticipationService {
             Long matchId
     );
 
+    List<ParticipationResponse> getMatchParticipantsForPlayer(
+            Long matchId,
+            Long playerId
+    );
+
     void leaveMatch(Long matchId, Long playerId);
 
     ParticipationResponse markNoShow(Long participationId);

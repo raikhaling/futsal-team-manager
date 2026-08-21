@@ -1,6 +1,7 @@
 package com.nabinrai.futsal_team_manager.match.service;
 
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.config.MatchProperties;
 import com.nabinrai.futsal_team_manager.match.dto.response.ParticipationResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.PlayerMatchParticipationResponse;
 import com.nabinrai.futsal_team_manager.match.entity.Match;
@@ -12,9 +13,9 @@ import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepos
 import com.nabinrai.futsal_team_manager.match.repository.MatchRepository;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
 import com.nabinrai.futsal_team_manager.player.repository.PlayerRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,14 +29,15 @@ public class MatchParticipationServiceImpl
     private final PlayerRepository playerRepository;
     private final MatchParticipationRepository participationRepository;
     private final MatchParticipationMapper participationMapper;
+    private final MatchProperties matchProperties;
 
     @Override
+    @Transactional
     public ParticipationResponse addPlayerToMatch(
             Long matchId,
             Long playerId
     ) {
-
-        Match match = matchRepository.findById(matchId)
+        Match match = matchRepository.findByIdForUpdate(matchId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Match not found with id: " + matchId
@@ -68,7 +70,7 @@ public class MatchParticipationServiceImpl
                 );
 
         ParticipationStatus newStatus =
-                confirmedCount < 14
+                confirmedCount < matchProperties.maxConfirmedPlayers()
                         ? ParticipationStatus.CONFIRMED
                         : ParticipationStatus.WAITING_LIST;
 
@@ -144,6 +146,7 @@ public class MatchParticipationServiceImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationResponse> getMatchParticipants(
             Long matchId
     ) {
@@ -151,6 +154,36 @@ public class MatchParticipationServiceImpl
         if (!matchRepository.existsById(matchId)) {
             throw new ResourceNotFoundException(
                     "Match not found with id: " + matchId
+            );
+        }
+
+        return participationRepository
+                .findByMatchId(matchId)
+                .stream()
+                .map(participationMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ParticipationResponse> getMatchParticipantsForPlayer(
+            Long matchId,
+            Long playerId
+    ) {
+        if (!matchRepository.existsById(matchId)) {
+            throw new ResourceNotFoundException(
+                    "Match not found with id: " + matchId
+            );
+        }
+
+        // Security: only players who have joined the match may see who else
+        boolean isParticipant = participationRepository
+                .findByMatchIdAndPlayerId(matchId, playerId)
+                .isPresent();
+
+        if (!isParticipant) {
+            throw new IllegalArgumentException(
+                    "You are not participating in this match"
             );
         }
 
@@ -197,7 +230,7 @@ public class MatchParticipationServiceImpl
                         ParticipationStatus.CONFIRMED
                 );
 
-        if (confirmedCount < 14) {
+        if (confirmedCount < matchProperties.maxConfirmedPlayers()) {
 
             participationRepository
                     .findFirstByMatchIdAndStatusOrderByCreatedAtAsc(
@@ -250,6 +283,7 @@ public class MatchParticipationServiceImpl
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PlayerMatchParticipationResponse getMyParticipation(
             Long matchId,
             Long playerId) {
@@ -277,6 +311,4 @@ public class MatchParticipationServiceImpl
                         )
                 );
     }
-
-
 }
