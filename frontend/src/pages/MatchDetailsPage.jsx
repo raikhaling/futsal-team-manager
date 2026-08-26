@@ -103,7 +103,7 @@ function MatchDetailsPage() {
         const response = await playerMatchApi.getMyParticipation(id);
 
         setMyParticipation(response.data);
-      } catch (error) {
+      } catch {
         setParticipationError("Failed to load your participation status.");
         setMyParticipation(null);
       }

@@ -177,7 +177,7 @@ function ProfilePage() {
                   Role
                 </span>
                 <p className="mt-1 text-sm font-medium text-slate-900">
-                  {user.role}
+                  {user.systemRole}
                 </p>
               </div>
             </div>

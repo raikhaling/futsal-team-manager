@@ -16,7 +16,7 @@ const adminPlayerApi = {
     return axiosClient.get(`/api/admin/players/${id}`);
   },
   updatePlayer(id, data) {
-    return axiosClient.put(`api/admin/players/${id}`, data);
+    return axiosClient.put(`/api/admin/players/${id}`, data);
   },
   getPlayerOptions() {
     return axiosClient.get("/api/admin/players/options");

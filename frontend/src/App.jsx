@@ -8,6 +8,7 @@ import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminPlayersPage from "./pages/AdminPlayersPage";
 import AdminRoute from "./components/AdminRoute";
+import TeamAdminRoute from "./components/TeamAdminRoute";
 import AdminPlayerDetailsPage from "./pages/AdminPlayerDetailsPage";
 import AdminEditPlayerPage from "./pages/AdminEditPlayerPage";
 import UpcomingMatchesPage from "./pages/UpcomingMatchesPage";
@@ -18,6 +19,7 @@ import AdminCreateMatchPage from "./pages/AdminCreateMatchPage";
 import AdminEditMatchPage from "./pages/AdminEditMatchPage";
 import AdminMatchDetailsPage from "./pages/AdminMatchDetailsPage";
 import MatchDetailsPage from "./pages/MatchDetailsPage";
+import TeamSetup from "./components/TeamSetup";
 
 function App() {
   return (
@@ -55,6 +57,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teams"
+          element={
+            <ProtectedRoute>
+              <TeamSetup />
             </ProtectedRoute>
           }
         />
@@ -109,41 +119,33 @@ function App() {
         <Route
           path="/admin/matches"
           element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <AdminMatchesPage />
-              </AdminRoute>
-            </ProtectedRoute>
+            <TeamAdminRoute>
+              <AdminMatchesPage />
+            </TeamAdminRoute>
           }
         />
         <Route
           path="/admin/matches/create"
           element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <AdminCreateMatchPage />
-              </AdminRoute>
-            </ProtectedRoute>
+            <TeamAdminRoute>
+              <AdminCreateMatchPage />
+            </TeamAdminRoute>
           }
         />
         <Route
           path="/admin/matches/:id/edit"
           element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <AdminEditMatchPage />
-              </AdminRoute>
-            </ProtectedRoute>
+            <TeamAdminRoute>
+              <AdminEditMatchPage />
+            </TeamAdminRoute>
           }
         />
         <Route
           path="/admin/matches/:id"
           element={
-            <ProtectedRoute>
-              <AdminRoute>
-                <AdminMatchDetailsPage />
-              </AdminRoute>
-            </ProtectedRoute>
+            <TeamAdminRoute>
+              <AdminMatchDetailsPage />
+            </TeamAdminRoute>
           }
         />
         <Route

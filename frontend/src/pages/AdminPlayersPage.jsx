@@ -145,7 +145,7 @@ function AdminPlayersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
-                        {player.role}
+                        {player.systemRole}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">

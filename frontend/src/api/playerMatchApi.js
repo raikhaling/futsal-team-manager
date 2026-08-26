@@ -1,16 +1,12 @@
 import axiosClient from "./axiosClient";
 
 const playerMatchApi = {
-  getMatches() {
-    return axiosClient.get("/api/player/matches");
-  },
-
   joinMatch(matchId) {
-    return axiosClient.post(`/api/player/matches/${matchId}/join`);
+    return axiosClient.post(`/api/player/matches/${matchId}/participation`);
   },
 
   leaveMatch(matchId) {
-    return axiosClient.delete(`/api/player/matches/${matchId}/leave`);
+    return axiosClient.delete(`/api/player/matches/${matchId}/participation`);
   },
 
   getMyParticipation(matchId) {

@@ -12,7 +12,7 @@ function AdminRoute({ children }) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user.role !== "ADMIN") {
+  if (user.systemRole !== "SYSTEM_ADMIN") {
     return <Navigate to="/" replace />;
   }
 

@@ -12,7 +12,7 @@ function AdminEditPlayerPage() {
     phone: "",
     preferredPosition: "",
     jerseyNumber: "",
-    role: "",
+    systemRole: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -34,7 +34,7 @@ function AdminEditPlayerPage() {
           phone: player.phone ?? "",
           preferredPosition: player.preferredPosition ?? "",
           jerseyNumber: player.jerseyNumber ?? "",
-          role: player.role ?? "",
+          systemRole: player.systemRole ?? "",
         });
       } catch (error) {
         setError(error.response?.data?.message || "Failed to load player.");
@@ -202,7 +202,7 @@ function AdminEditPlayerPage() {
 
           <div>
             <label
-              htmlFor="role"
+              htmlFor="systemRole"
               className="block text-sm font-medium text-slate-700"
             >
               Role
@@ -210,15 +210,15 @@ function AdminEditPlayerPage() {
 
             <select
               id="role"
-              name="role"
-              value={formData.role}
+              name="systemRole"
+              value={formData.systemRole}
               onChange={handleChange}
               required
               className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">Select role</option>
-              <option value="PLAYER">Player</option>
-              <option value="ADMIN">Admin</option>
+              <option value="USER">User</option>
+              <option value="SYSTEM_ADMIN">System admin</option>
             </select>
           </div>
 

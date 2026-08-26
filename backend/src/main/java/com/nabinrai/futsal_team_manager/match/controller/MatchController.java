@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,7 @@ public class MatchController {
     private final MatchService matchService;
 
     @GetMapping("/upcoming")
-    public List<UpcomingMatchResponse> getUpcomingMatches() {
+    public List<UpcomingMatchResponse> getUpcomingMatches() throws AccessDeniedException {
         return matchService.getUpcomingMatches();
     }
 

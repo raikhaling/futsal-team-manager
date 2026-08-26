@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import adminMatchApi from "../api/adminMatchApi";
-import adminPlayerApi from "../api/adminPlayerApi";
+import teamApi from "../api/teamApi";
 
 function AdminMatchDetailsPage() {
   const { id } = useParams();
@@ -22,9 +22,14 @@ function AdminMatchDetailsPage() {
   useEffect(() => {
     async function loadPlayerOptions() {
       try {
-        const response = await adminPlayerApi.getPlayerOptions();
+        const response = await teamApi.getMembers();
 
-        setPlayerOptions(response.data);
+        setPlayerOptions(
+          response.data.map((member) => ({
+            ...member,
+            id: member.playerId,
+          })),
+        );
       } catch (error) {
         setAddPlayerError(
           error.response?.data?.message || "Failed to load player options.",
