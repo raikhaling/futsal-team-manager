@@ -1,5 +1,6 @@
 package com.nabinrai.futsal_team_manager.leaderboard.service;
 
+import com.nabinrai.futsal_team_manager.common.service.TeamContextService;
 import com.nabinrai.futsal_team_manager.leaderboard.dto.response.AttendanceLeaderboardProjection;
 import com.nabinrai.futsal_team_manager.leaderboard.dto.response.AttendanceLeaderboardResponse;
 import com.nabinrai.futsal_team_manager.leaderboard.repository.AttendanceLeaderboardRepository;
@@ -16,13 +17,15 @@ public class AttendanceLeaderboardServiceImpl
         implements AttendanceLeaderboardService {
 
     private final AttendanceLeaderboardRepository leaderboardRepository;
+    private final TeamContextService teamContextService;
 
     @Override
     @Transactional(readOnly = true)
     public List<AttendanceLeaderboardResponse> getLeaderboard(String sort) {
+        Long teamId = teamContextService.getCurrentTeamId();
 
         List<AttendanceLeaderboardProjection> projections =
-                leaderboardRepository.findAttendanceLeaderboard();
+                leaderboardRepository.findAttendanceLeaderboard(teamId);
 
         return projections.stream()
                 .map(player -> {

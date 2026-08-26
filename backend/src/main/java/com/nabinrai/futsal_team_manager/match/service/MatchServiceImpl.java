@@ -1,6 +1,7 @@
 package com.nabinrai.futsal_team_manager.match.service;
 
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.common.service.TeamContextService;
 import com.nabinrai.futsal_team_manager.match.dto.request.AdminUpdateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.request.CreateMatchRequest;
 import com.nabinrai.futsal_team_manager.match.dto.response.MatchDetailsResponse;
@@ -11,10 +12,12 @@ import com.nabinrai.futsal_team_manager.match.enums.ParticipationStatus;
 import com.nabinrai.futsal_team_manager.match.mapper.MatchMapper;
 import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepository;
 import com.nabinrai.futsal_team_manager.match.repository.MatchRepository;
+import com.nabinrai.futsal_team_manager.team.entity.Team;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -24,6 +27,7 @@ public class MatchServiceImpl implements MatchService {
     private final MatchRepository matchRepository;
     private final MatchMapper matchMapper;
     private final MatchParticipationRepository participationRepository;
+    private final TeamContextService teamContextService;
 
     @Override
     public MatchResponse createMatch(CreateMatchRequest request) {
@@ -34,9 +38,9 @@ public class MatchServiceImpl implements MatchService {
             );
         }
 
-        Match match = matchMapper.toEntity(request);
-
+        Team team = teamContextService.getCurrentTeam();
         if (matchRepository.existsOverlappingMatch(
+                team.getId(),
                 request.matchDate(),
                 request.startTime(),
                 request.endTime()
@@ -45,6 +49,9 @@ public class MatchServiceImpl implements MatchService {
                     "A match already exists during this time period"
             );
         }
+        Match match = matchMapper.toEntity(request);
+
+        match.setTeam(team);
 
         Match savedMatch = matchRepository.save(match);
 
@@ -53,10 +60,13 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public List<MatchResponse> getAllMatches() {
-
+        Long teamId = teamContextService.getCurrentTeamId();
         return matchRepository
-                .findAllByOrderByMatchDateAscStartTimeAsc()
+                .findAllByTeamId(teamId)
                 .stream()
+                .sorted(Comparator
+                        .comparing(Match::getMatchDate)
+                        .thenComparing(Match::getStartTime))
                 .map(matchMapper::toResponse)
                 .toList();
     }
@@ -64,10 +74,15 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<UpcomingMatchResponse> getUpcomingMatches() {
 
+        Long teamId = teamContextService.getCurrentTeamId();
+
         LocalDate today = LocalDate.now();
 
         return matchRepository
-                .findByMatchDateGreaterThanEqualOrderByMatchDateAscStartTimeAsc(today)
+                .findByTeamIdAndMatchDateGreaterThanEqualOrderByMatchDateAscStartTimeAsc(
+                        teamId,
+                        today
+                )
                 .stream()
                 .filter(match -> !match.hasEnded())
                 .map(matchMapper::toUpcomingMatchResponse)
@@ -77,10 +92,13 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public MatchDetailsResponse getMatchDetails(Long matchId) {
 
-        Match match = matchRepository.findById(matchId)
+        Long teamId = teamContextService.getCurrentTeamId();
+
+        Match match = matchRepository
+                .findByIdAndTeamId(matchId, teamId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Match not found with id: " + matchId
+                                "Match not found"
                         )
                 );
 
@@ -113,10 +131,30 @@ public class MatchServiceImpl implements MatchService {
             Long id,
             AdminUpdateMatchRequest request
     ) {
-        Match match = matchRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Match not found with id: " + id
-                ));
+        Long teamId = teamContextService.getCurrentTeamId();
+        Match match = matchRepository
+                .findByIdAndTeamId(id, teamId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Match not found with id: " + id
+                        )
+                );
+        if (request.endTime().isBefore(request.startTime())) {
+            throw new IllegalArgumentException(
+                    "End time cannot be before start time"
+            );
+        }
+        if (matchRepository.existsOverlappingMatchForUpdate(
+                teamId,
+                id,
+                request.matchDate(),
+                request.startTime(),
+                request.endTime()
+        )) {
+            throw new IllegalArgumentException(
+                    "A match already exists during this time period"
+            );
+        }
 
         match.setName(request.name());
         match.setLocation(request.location());

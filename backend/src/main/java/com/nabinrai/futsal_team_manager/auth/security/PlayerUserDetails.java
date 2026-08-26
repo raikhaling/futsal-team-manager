@@ -22,7 +22,7 @@ public class PlayerUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
                 new SimpleGrantedAuthority(
-                        "ROLE_" + player.getRole().name()
+                        "ROLE_" + player.getSystemRole().name()
                 )
         );
     }

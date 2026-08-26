@@ -1,8 +1,8 @@
 package com.nabinrai.futsal_team_manager.match.entity;
 
 import com.nabinrai.futsal_team_manager.common.enity.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import com.nabinrai.futsal_team_manager.team.entity.Team;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -27,6 +27,10 @@ public class Match extends BaseEntity {
     private LocalTime startTime;
 
     private LocalTime endTime;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "team_id", nullable = false)
+    private Team team;
 
     public boolean hasEnded() {
         LocalDateTime endDateTime = LocalDateTime.of(

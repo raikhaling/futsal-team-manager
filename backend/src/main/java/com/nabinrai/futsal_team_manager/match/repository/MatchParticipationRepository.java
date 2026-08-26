@@ -12,13 +12,9 @@ public interface MatchParticipationRepository
 
     List<MatchParticipation> findByMatchId(Long matchId);
 
-    List<MatchParticipation> findByPlayerIdAndStatus(
+    List<MatchParticipation> findByPlayerIdAndMatchTeamIdOrderByMatchMatchDateDesc(
             Long playerId,
-            ParticipationStatus status
-    );
-
-    List<MatchParticipation> findByPlayerIdOrderByMatchMatchDateDesc(
-            Long playerId
+            Long teamId
     );
 
     Optional<MatchParticipation> findByMatchIdAndPlayerId(
@@ -34,4 +30,14 @@ public interface MatchParticipationRepository
     );
 
     void deleteByPlayerId(Long id);
+
+    Optional<MatchParticipation>
+    findByIdAndMatchTeamId(Long participationId, Long teamId);
+
+    boolean existsByMatchIdAndPlayerId(
+            Long matchId,
+            Long playerId
+    );
+
+    List<MatchParticipation> findAllByMatchId(Long matchId);
 }

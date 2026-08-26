@@ -1,13 +1,13 @@
 package com.nabinrai.futsal_team_manager.match.service;
 
+import com.nabinrai.futsal_team_manager.common.service.CurrentPlayerService;
+import com.nabinrai.futsal_team_manager.common.service.TeamContextService;
 import com.nabinrai.futsal_team_manager.match.dto.response.AttendanceHistoryResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.AttendanceSummaryResponse;
 import com.nabinrai.futsal_team_manager.match.entity.MatchParticipation;
 import com.nabinrai.futsal_team_manager.match.enums.ParticipationStatus;
 import com.nabinrai.futsal_team_manager.match.mapper.MatchParticipationMapper;
 import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepository;
-import com.nabinrai.futsal_team_manager.player.utils.CurrentPlayerService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +22,17 @@ public class PlayerAttendanceServiceImpl
     private final MatchParticipationRepository participationRepository;
     private final MatchParticipationMapper participationMapper;
     private final CurrentPlayerService currentPlayerService;
+    private final TeamContextService teamContextService;
 
     @Override
     public AttendanceSummaryResponse getMyAttendance() {
 
         Long playerId = currentPlayerService.getCurrentPlayerId();
+        Long teamId = teamContextService.getCurrentTeamId();
 
         List<MatchParticipation> participations =
                 participationRepository
-                        .findByPlayerIdOrderByMatchMatchDateDesc(playerId);
+                        .findByPlayerIdAndMatchTeamIdOrderByMatchMatchDateDesc(playerId, teamId);
 
         long attended = participations.stream()
                 .filter(p -> p.getStatus() == ParticipationStatus.ATTENDED)
@@ -54,32 +56,17 @@ public class PlayerAttendanceServiceImpl
         );
     }
 
-    //    @Override
-//    public List<AttendanceHistoryResponse> getMyAttendanceHistory() {
-//        Long playerId = currentPlayerService.getCurrentPlayerId();
-//
-//        List<MatchParticipation> participation =
-//                participationRepository.findByPlayerIdOrderByMatchMatchDateDesc(playerId);
-//
-//        if (participation.isEmpty()) {
-//            throw new ResourceNotFoundException("No attendance history found for player id: " + playerId);
-//        }
-//
-//        return participation.stream()
-//                .map(participationMapper::toAttendanceHistory)
-//                .toList();
-//    }
-
-
     @Override
     @Transactional(readOnly = true)
     public List<AttendanceHistoryResponse> getMyAttendanceHistory() {
         Long playerId = currentPlayerService.getCurrentPlayerId();
+        Long teamId = teamContextService.getCurrentTeamId();
 
         return participationRepository
-                .findByPlayerIdOrderByMatchMatchDateDesc(playerId)
+                .findByPlayerIdAndMatchTeamIdOrderByMatchMatchDateDesc(playerId, teamId)
                 .stream()
                 .map(participationMapper::toAttendanceHistory)
                 .toList();
     }
+
 }

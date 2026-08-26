@@ -10,7 +10,7 @@ CREATE TABLE players
     phone              VARCHAR(20),
 
     preferred_position VARCHAR(50)  NOT NULL,
-    role               VARCHAR(50)  NOT NULL,
+    systemRole         VARCHAR(50)  NOT NULL,
 
     enabled            BOOLEAN      NOT NULL DEFAULT TRUE,
     jersey_number      INTEGER

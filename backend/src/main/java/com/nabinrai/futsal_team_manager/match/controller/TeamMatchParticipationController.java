@@ -7,18 +7,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/matches")
+@RequestMapping("/api/teams/matches")
 @RequiredArgsConstructor
-public class AdminMatchParticipationController {
+public class TeamMatchParticipationController {
 
     private final MatchParticipationService participationService;
 
     @PostMapping("/{matchId}/participants")
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public ResponseEntity<ParticipationResponse> addPlayer(
             @PathVariable Long matchId,
             @Valid @RequestBody AddParticipantRequest request
@@ -36,6 +38,7 @@ public class AdminMatchParticipationController {
     }
 
     @PatchMapping("/participants/{participationId}/attendance")
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public ParticipationResponse markAttendance(
             @PathVariable Long participationId
     ) {
@@ -46,6 +49,7 @@ public class AdminMatchParticipationController {
     }
 
     @GetMapping("/{matchId}/participants")
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public List<ParticipationResponse> getParticipants(
             @PathVariable Long matchId
     ) {
@@ -54,6 +58,7 @@ public class AdminMatchParticipationController {
     }
 
     @PatchMapping("/participants/{participationId}/no-show")
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public ParticipationResponse markNoShow(
             @PathVariable Long participationId
     ) {

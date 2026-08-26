@@ -1,6 +1,8 @@
 package com.nabinrai.futsal_team_manager.match.service;
 
 import com.nabinrai.futsal_team_manager.common.exception.ResourceNotFoundException;
+import com.nabinrai.futsal_team_manager.common.service.CurrentPlayerService;
+import com.nabinrai.futsal_team_manager.common.service.TeamContextService;
 import com.nabinrai.futsal_team_manager.config.MatchProperties;
 import com.nabinrai.futsal_team_manager.match.dto.response.ParticipationResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.PlayerMatchParticipationResponse;
@@ -13,6 +15,7 @@ import com.nabinrai.futsal_team_manager.match.repository.MatchParticipationRepos
 import com.nabinrai.futsal_team_manager.match.repository.MatchRepository;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
 import com.nabinrai.futsal_team_manager.player.repository.PlayerRepository;
+import com.nabinrai.futsal_team_manager.team.repository.TeamMembershipRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,9 @@ public class MatchParticipationServiceImpl
     private final MatchParticipationRepository participationRepository;
     private final MatchParticipationMapper participationMapper;
     private final MatchProperties matchProperties;
+    private final TeamContextService teamContextService;
+    private final TeamMembershipRepository membershipRepository;
+    private final CurrentPlayerService currentPlayerService;
 
     @Override
     @Transactional
@@ -37,12 +43,24 @@ public class MatchParticipationServiceImpl
             Long matchId,
             Long playerId
     ) {
-        Match match = matchRepository.findByIdForUpdate(matchId)
+        Long teamId = teamContextService.getCurrentTeamId();
+
+        Match match = matchRepository
+                .findByIdAndTeamIdForUpdate(matchId, teamId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Match not found with id: " + matchId
+                                "Match not found"
                         )
                 );
+
+        if (!membershipRepository.existsByTeamIdAndPlayerId(
+                teamId,
+                playerId
+        )) {
+            throw new IllegalArgumentException(
+                    "Player does not belong to this team"
+            );
+        }
 
         if (match.hasEnded()) {
             throw new IllegalArgumentException(
@@ -112,13 +130,17 @@ public class MatchParticipationServiceImpl
     public ParticipationResponse markAttendance(
             Long participationId
     ) {
+        Long teamId = teamContextService.getCurrentTeamId();
 
         MatchParticipation participation =
-                participationRepository.findById(participationId)
+                participationRepository
+                        .findByIdAndMatchTeamId(
+                                participationId,
+                                teamId
+                        )
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Participation not found with id: "
-                                                + participationId
+                                        "Participation not found"
                                 )
                         );
         if (!participation.getMatch().hasStarted()) {
@@ -150,8 +172,9 @@ public class MatchParticipationServiceImpl
     public List<ParticipationResponse> getMatchParticipants(
             Long matchId
     ) {
+        Long teamId = teamContextService.getCurrentTeamId();
 
-        if (!matchRepository.existsById(matchId)) {
+        if (!matchRepository.existsByIdAndTeamId(matchId, teamId)) {
             throw new ResourceNotFoundException(
                     "Match not found with id: " + matchId
             );
@@ -166,13 +189,13 @@ public class MatchParticipationServiceImpl
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParticipationResponse> getMatchParticipantsForPlayer(
-            Long matchId,
-            Long playerId
-    ) {
-        if (!matchRepository.existsById(matchId)) {
+    public List<ParticipationResponse> getMatchParticipantsForPlayer(Long matchId) {
+        Long teamId = teamContextService.getCurrentTeamId();
+        Long playerId = currentPlayerService.getCurrentPlayerId();
+
+        if (!matchRepository.existsByIdAndTeamId(matchId, teamId)) {
             throw new ResourceNotFoundException(
-                    "Match not found with id: " + matchId
+                    "Match not found"
             );
         }
 
@@ -196,34 +219,52 @@ public class MatchParticipationServiceImpl
 
     @Override
     @Transactional
-    public void leaveMatch(Long matchId, Long playerId) {
+    public void leaveMatch(Long matchId) {
+
+        Long teamId = teamContextService.getCurrentTeamId();
+        Long playerId = currentPlayerService.getCurrentPlayerId();
+
+        // Verify the match belongs to the current team.
+        if (!matchRepository.existsByIdAndTeamId(
+                matchId,
+                teamId
+        )) {
+            throw new ResourceNotFoundException(
+                    "Match not found"
+            );
+        }
 
         MatchParticipation participation =
                 participationRepository
-                        .findByMatchIdAndPlayerId(matchId, playerId)
+                        .findByMatchIdAndPlayerId(
+                                matchId,
+                                playerId
+                        )
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
                                         "Player is not participating in this match"
                                 )
                         );
+
         if (participation.getMatch().hasEnded()) {
             throw new IllegalArgumentException(
                     "Cannot leave a match that has already ended"
             );
         }
 
-        if (participation.getStatus() == ParticipationStatus.ATTENDED) {
+        if (participation.getStatus()
+                == ParticipationStatus.ATTENDED) {
             throw new IllegalArgumentException(
                     "Cannot leave a match that has already been attended"
             );
         }
 
-        // Player leaves
-        participation.setStatus(ParticipationStatus.CANCELLED);
+        participation.setStatus(
+                ParticipationStatus.CANCELLED
+        );
 
         participationRepository.save(participation);
 
-        // Promote a waiting list player to confirmed if available
         long confirmedCount =
                 participationRepository.countByMatchIdAndStatus(
                         matchId,
@@ -243,7 +284,9 @@ public class MatchParticipationServiceImpl
                                 ParticipationStatus.CONFIRMED
                         );
 
-                        participationRepository.save(waitingPlayer);
+                        participationRepository.save(
+                                waitingPlayer
+                        );
                     });
         }
     }
@@ -251,15 +294,9 @@ public class MatchParticipationServiceImpl
     @Override
     @Transactional
     public ParticipationResponse markNoShow(Long participationId) {
+        Long teamId = teamContextService.getCurrentTeamId();
 
-        MatchParticipation participation =
-                participationRepository.findById(participationId)
-                        .orElseThrow(() ->
-                                new ResourceNotFoundException(
-                                        "Participation not found with id: "
-                                                + participationId
-                                )
-                        );
+        MatchParticipation participation = getParticipation(participationId, teamId);
 
         Match match = participation.getMatch();
 
@@ -282,20 +319,41 @@ public class MatchParticipationServiceImpl
         );
     }
 
+    private MatchParticipation getParticipation(Long participationId, Long teamId) {
+        MatchParticipation participation =
+                participationRepository
+                        .findByIdAndMatchTeamId(
+                                participationId,
+                                teamId
+                        )
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Participation not found"
+                                )
+                        );
+        return participation;
+    }
+
     @Override
     @Transactional(readOnly = true)
     public PlayerMatchParticipationResponse getMyParticipation(
-            Long matchId,
-            Long playerId) {
-
-        if (!matchRepository.existsById(matchId)) {
+            Long matchId) {
+        Long teamId = teamContextService.getCurrentTeamId();
+        Long playerId = currentPlayerService.getCurrentPlayerId();
+        if (!matchRepository.existsByIdAndTeamId(
+                matchId,
+                teamId
+        )) {
             throw new ResourceNotFoundException(
-                    "Match not found with id: " + matchId
+                    "Match not found"
             );
         }
 
         return participationRepository
-                .findByMatchIdAndPlayerId(matchId, playerId)
+                .findByMatchIdAndPlayerId(
+                        matchId,
+                        playerId
+                )
                 .map(participation ->
                         new PlayerMatchParticipationResponse(
                                 matchId,
@@ -310,5 +368,81 @@ public class MatchParticipationServiceImpl
                                 PlayerMatchStatus.NOT_JOINED
                         )
                 );
+    }
+
+    @Override
+    @Transactional
+    public ParticipationResponse joinMatch(Long matchId) {
+
+        Long teamId = teamContextService.getCurrentTeamId();
+        Long playerId = currentPlayerService.getCurrentPlayerId();
+
+        Match match = matchRepository
+                .findByIdAndTeamIdForUpdate(matchId, teamId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Match not found"
+                        )
+                );
+
+        // The current player must belong to the selected team.
+        // TeamContextService already verifies this.
+
+        if (match.hasEnded()) {
+            throw new IllegalArgumentException(
+                    "Cannot join a match that has already ended"
+            );
+        }
+
+        Player player = currentPlayerService.getCurrentPlayer();
+
+        Optional<MatchParticipation> existingParticipation =
+                participationRepository
+                        .findByMatchIdAndPlayerId(
+                                matchId,
+                                playerId
+                        );
+
+        long confirmedCount =
+                participationRepository.countByMatchIdAndStatus(
+                        matchId,
+                        ParticipationStatus.CONFIRMED
+                );
+
+        ParticipationStatus newStatus =
+                confirmedCount < matchProperties.maxConfirmedPlayers()
+                        ? ParticipationStatus.CONFIRMED
+                        : ParticipationStatus.WAITING_LIST;
+
+        if (existingParticipation.isPresent()) {
+
+            MatchParticipation participation =
+                    existingParticipation.get();
+
+            if (participation.getStatus()
+                    == ParticipationStatus.CANCELLED) {
+
+                participation.setStatus(newStatus);
+
+                return participationMapper.toResponse(
+                        participationRepository.save(participation)
+                );
+            }
+
+            throw new IllegalArgumentException(
+                    "Player is already participating in this match"
+            );
+        }
+
+        MatchParticipation participation =
+                MatchParticipation.builder()
+                        .match(match)
+                        .player(player)
+                        .status(newStatus)
+                        .build();
+
+        return participationMapper.toResponse(
+                participationRepository.save(participation)
+        );
     }
 }

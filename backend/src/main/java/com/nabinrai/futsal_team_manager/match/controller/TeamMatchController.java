@@ -8,18 +8,20 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin/matches")
+@RequestMapping("/api/teams/matches")
 @RequiredArgsConstructor
-public class AdminMatchController {
+public class TeamMatchController {
 
     private final MatchService matchService;
 
     @PostMapping
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public ResponseEntity<MatchResponse> createMatch(
             @Valid @RequestBody CreateMatchRequest request
     ) {
@@ -32,6 +34,7 @@ public class AdminMatchController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public MatchResponse updateMatch(
             @PathVariable Long id,
             @Valid @RequestBody AdminUpdateMatchRequest request
@@ -41,6 +44,7 @@ public class AdminMatchController {
 
 
     @GetMapping
+    @PreAuthorize("@teamSecurityService.isCurrentTeamAdmin()")
     public List<MatchResponse> getAllMatches() {
         return matchService.getAllMatches();
     }

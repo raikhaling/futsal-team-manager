@@ -20,14 +20,13 @@ public interface MatchParticipationService {
             Long matchId
     );
 
-    List<ParticipationResponse> getMatchParticipantsForPlayer(
-            Long matchId,
-            Long playerId
-    );
+    List<ParticipationResponse> getMatchParticipantsForPlayer(Long matchId);
 
-    void leaveMatch(Long matchId, Long playerId);
+    void leaveMatch(Long matchId);
 
     ParticipationResponse markNoShow(Long participationId);
 
-    PlayerMatchParticipationResponse getMyParticipation(Long matchId, Long currentPlayerId);
+    PlayerMatchParticipationResponse getMyParticipation(Long matchId);
+
+    ParticipationResponse joinMatch(Long matchId);
 }

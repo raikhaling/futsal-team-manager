@@ -1,11 +1,8 @@
 package com.nabinrai.futsal_team_manager.match.controller;
 
-import com.nabinrai.futsal_team_manager.match.dto.response.MatchResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.ParticipationResponse;
 import com.nabinrai.futsal_team_manager.match.dto.response.PlayerMatchParticipationResponse;
 import com.nabinrai.futsal_team_manager.match.service.MatchParticipationService;
-import com.nabinrai.futsal_team_manager.match.service.MatchService;
-import com.nabinrai.futsal_team_manager.player.utils.CurrentPlayerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,59 +13,44 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/player/matches")
 @RequiredArgsConstructor
-public class PlayerMatchController {
+public class PlayerMatchParticipationController {
 
-    private final MatchService matchService;
     private final MatchParticipationService participationService;
-    private final CurrentPlayerService currentPlayerService;
 
-    @GetMapping
-    public List<MatchResponse> getMatches() {
-        return matchService.getAllMatches();
-    }
-
-    @PostMapping("/{matchId}/join")
+    @PostMapping("/{matchId}/participation")
     public ResponseEntity<ParticipationResponse> joinMatch(
             @PathVariable Long matchId
     ) {
 
-        Long playerId = currentPlayerService.getCurrentPlayerId();
-
         ParticipationResponse response =
-                participationService.addPlayerToMatch(
-                        matchId,
-                        playerId
-                );
+                participationService.joinMatch(matchId);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
 
-    @DeleteMapping("/{matchId}/leave")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void leaveMatch(@PathVariable Long matchId) {
+    @DeleteMapping("/{matchId}/participation")
+    public ResponseEntity<Void> leaveMatch(
+            @PathVariable Long matchId
+    ) {
 
-        Long playerId = currentPlayerService.getCurrentPlayerId();
+        participationService.leaveMatch(matchId);
 
-        participationService.leaveMatch(matchId, playerId);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{matchId}/participation")
     public PlayerMatchParticipationResponse getMyParticipation(
             @PathVariable Long matchId
     ) {
-        return participationService.getMyParticipation(matchId, currentPlayerService.getCurrentPlayerId());
+        return participationService.getMyParticipation(matchId);
     }
 
     @GetMapping("/{matchId}/participants")
     public List<ParticipationResponse> getParticipants(
             @PathVariable Long matchId
     ) {
-        return participationService.getMatchParticipantsForPlayer(
-                matchId,
-                currentPlayerService.getCurrentPlayerId()
-        );
+        return participationService.getMatchParticipantsForPlayer(matchId);
     }
-
 }

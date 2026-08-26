@@ -1,7 +1,7 @@
 package com.nabinrai.futsal_team_manager.player.controller;
 
 import com.nabinrai.futsal_team_manager.auth.dto.response.UserResponse;
-import com.nabinrai.futsal_team_manager.auth.security.PlayerUserDetails;
+import com.nabinrai.futsal_team_manager.common.service.CurrentPlayerService;
 import com.nabinrai.futsal_team_manager.player.dto.request.ChangePasswordRequest;
 import com.nabinrai.futsal_team_manager.player.dto.request.UpdatePlayerRequest;
 import com.nabinrai.futsal_team_manager.player.entity.Player;
@@ -19,14 +19,12 @@ import org.springframework.web.bind.annotation.*;
 public class PlayerController {
     private final PlayerMapper playerMapper;
     private final PlayerService playerService;
+    private final CurrentPlayerService currentPlayerService;
 
     @GetMapping("/me")
     public UserResponse getCurrentPlayer(Authentication authentication) {
 
-        PlayerUserDetails userDetails =
-                (PlayerUserDetails) authentication.getPrincipal();
-
-        Player player = userDetails.getPlayer();
+        Player player = currentPlayerService.getCurrentPlayer();
 
         return playerMapper.toUserResponse(player);
     }
@@ -36,11 +34,10 @@ public class PlayerController {
             Authentication authentication,
             @Valid @RequestBody UpdatePlayerRequest request
     ) {
-        PlayerUserDetails userDetails =
-                (PlayerUserDetails) authentication.getPrincipal();
+        Long currentPlayerID = currentPlayerService.getCurrentPlayerId();
 
         return playerService.updateProfile(
-                userDetails.getPlayer().getId(),
+                currentPlayerID,
                 request
         );
     }
@@ -50,11 +47,10 @@ public class PlayerController {
             Authentication authentication,
             @Valid @RequestBody ChangePasswordRequest request
     ) {
-        PlayerUserDetails userDetails =
-                (PlayerUserDetails) authentication.getPrincipal();
+        Long currentPlayerID = currentPlayerService.getCurrentPlayerId();
 
         playerService.changePassword(
-                userDetails.getPlayer().getId(),
+                currentPlayerID,
                 request
         );
 

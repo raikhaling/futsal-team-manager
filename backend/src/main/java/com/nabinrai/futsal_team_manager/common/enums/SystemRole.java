@@ -1,6 +1,6 @@
 package com.nabinrai.futsal_team_manager.common.enums;
 
-public enum Role {
-    ADMIN,
-    PLAYER
+public enum SystemRole {
+    SYSTEM_ADMIN,
+    USER
 }
